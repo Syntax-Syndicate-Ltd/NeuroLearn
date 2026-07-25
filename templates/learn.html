@@ -157,7 +157,9 @@
     
     .learn-topbar {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
+        justify-content: space-between;
         gap: 0.5rem;
         padding: 0.5rem 0 0.75rem 0;
         flex-shrink: 0;
@@ -523,7 +525,13 @@
             overflow-y: auto;
         }
         .learn-page { height: auto; min-height: calc(100vh - 100px); }
-        .learn-audio-panel { max-height: none; }
+        .learn-audio-panel { max-height: none; padding: 1rem; }
+        .learn-text-panel { padding: 1rem; }
+    }
+    
+    #emotion-detector-container video, #emotion-detector-container canvas {
+        max-width: 100% !important;
+        height: auto !important;
     }
     
     /* === SCROLLBAR (text panel only) === */

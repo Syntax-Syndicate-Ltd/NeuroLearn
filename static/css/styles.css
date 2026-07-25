@@ -1663,6 +1663,7 @@ select option {
     bottom: 8rem;
     right: 2rem;
     width: 340px;
+    max-width: calc(100vw - 4rem);
     max-height: 450px;
     z-index: 999;
     background: var(--bg-secondary);
@@ -1817,6 +1818,7 @@ select option {
 
 @media (max-width: 640px) {
   .battle-lobby-grid { grid-template-columns: 1fr; }
+  .battle-card { padding: 1rem; width: 100%; box-sizing: border-box; }
 }
 
 .battle-card {
@@ -2219,8 +2221,10 @@ select option {
   border-radius: 24px;
   padding: 3rem;
   text-align: center;
-  min-width: 360px;
-  max-width: 480px;
+  min-width: 280px;
+  max-width: 90vw;
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }

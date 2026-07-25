@@ -7,10 +7,10 @@
              style="background: #E6F4EA; border: 2px solid #10B981; color: #047857;">
             ✨ LEARNING MADE AS EASY AS A GAME
         </div>
-        <h1 class="text-5xl md:text-7xl font-black font-heading mb-4 tracking-tight leading-[1.1]" style="color: #1E293B;">
+        <h1 class="text-4xl md:text-5xl lg:text-7xl font-black font-heading mb-4 tracking-tight leading-[1.1]" style="color: #1E293B;">
             What do you want to <br class="hidden md:inline"><span style="color: #10B981;">learn today?</span>
         </h1>
-        <p class="text-xl md:text-2xl font-heading font-bold mb-4" style="color: #64748B;">
+        <p class="text-lg md:text-2xl font-heading font-bold mb-4" style="color: #64748B;">
             Drop your textbook or type any topic. We'll turn it into your custom level path!
         </p>
     </div>
@@ -24,7 +24,7 @@
         </div>
         
         <div id="upload-section" class="transition-all duration-500">
-            <div class="glass p-8 md:p-12 upload-zone relative overflow-hidden" id="drop-zone" style="border: 3px dashed #0EA5E9; background: #F0F9FF; border-radius: 28px;">
+            <div class="glass p-4 sm:p-8 md:p-12 upload-zone relative overflow-hidden w-full box-border" id="drop-zone" style="border: 3px dashed #0EA5E9; background: #F0F9FF; border-radius: 28px;">
                 
                 <div id="upload-idle">
                     <div class="w-20 h-20 mx-auto mb-5 rounded-3xl flex items-center justify-center animate-bounce"
@@ -54,8 +54,8 @@
                     </button>
                 </div>
 
-                <div id="paste-input-section" class="hidden mt-8">
-                    <textarea id="text-input" class="w-full h-48 p-5 rounded-2xl outline-none mb-4 font-semibold text-lg resize-none"
+                <div id="paste-input-section" class="hidden mt-8 w-full">
+                    <textarea id="text-input" class="w-full h-48 p-5 rounded-2xl outline-none mb-4 font-semibold text-lg resize-none box-border"
                               style="background: #FFFFFF; border: 2px solid #E2E8F0; color: #1E293B;"
                               placeholder="Paste your educational text or chapter here..."></textarea>
                     <div class="flex justify-between items-center">
@@ -68,8 +68,8 @@
 
     {% else %}
         <!-- NOT LOGGED IN: Simple 2-Choice Selection -->
-        <div id="user-selection" class="grid md:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
-            <a href="/signup?role=child" class="glass p-8 text-left group transition-all block no-underline relative overflow-hidden" id="card-student" style="border: 3px solid #0EA5E9; box-shadow: 0 8px 0 #0284C7; border-radius: 28px;">
+        <div id="user-selection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto px-4 md:px-0">
+            <a href="/signup?role=child" class="glass p-6 sm:p-8 text-left group transition-all block no-underline relative overflow-hidden" id="card-student" style="border: 3px solid #0EA5E9; box-shadow: 0 8px 0 #0284C7; border-radius: 28px;">
                 <div class="text-5xl mb-4 group-hover:scale-110 transition-transform"><span class="inline-block p-4 rounded-2xl" style="background: #E0F2FE; color: #0EA5E9;"><i class="fas fa-graduation-cap"></i></span></div>
                 <h3 class="text-3xl font-black font-heading mb-2" style="color: #1E293B;">Student Account</h3>
                 <p class="text-base font-semibold mb-6" style="color: #64748B;">Start your learning path with games, stories & rewards.</p>
@@ -78,7 +78,7 @@
                 </span>
             </a>
 
-            <a href="/signup?role=parent" class="glass p-8 text-left group transition-all block no-underline relative overflow-hidden" id="card-parent" style="border: 3px solid #F59E0B; box-shadow: 0 8px 0 #D97706; border-radius: 28px;">
+            <a href="/signup?role=parent" class="glass p-6 sm:p-8 text-left group transition-all block no-underline relative overflow-hidden" id="card-parent" style="border: 3px solid #F59E0B; box-shadow: 0 8px 0 #D97706; border-radius: 28px;">
                 <div class="text-5xl mb-4 group-hover:scale-110 transition-transform"><span class="inline-block p-4 rounded-2xl" style="background: #FEF3C7; color: #F59E0B;"><i class="fas fa-users"></i></span></div>
                 <h3 class="text-3xl font-black font-heading mb-2" style="color: #1E293B;">Parent Account</h3>
                 <p class="text-base font-semibold mb-6" style="color: #64748B;">Customize learning settings and view child progress.</p>
@@ -114,7 +114,7 @@
 
         <!-- Guest Upload Zone -->
         <div id="guest-upload-section" class="hidden opacity-0 translate-y-8 transition-all duration-700">
-            <div class="grid md:grid-cols-2 gap-4 mb-6 max-w-lg mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-lg mx-auto">
                 <button onclick="selectGuestType('child')" class="guest-type-btn glass p-4 text-center transition-all text-sm" id="guest-type-child">
                     <i class="fas fa-graduation-cap mr-1"></i> I'm a Student
                 </button>
@@ -123,7 +123,7 @@
                 </button>
             </div>
 
-            <div class="glass p-10 md:p-12 upload-zone relative overflow-hidden" id="drop-zone">
+            <div class="glass p-5 sm:p-10 md:p-12 upload-zone relative overflow-hidden w-full box-border" id="drop-zone">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent shimmer-overlay pointer-events-none"></div>
                 
                 <div id="upload-idle">
@@ -154,8 +154,8 @@
                     </button>
                 </div>
 
-                <div id="paste-input-section" class="hidden mt-8">
-                    <textarea id="text-input" class="w-full h-48 p-4 rounded-xl outline-none mb-4 text-white placeholder-white/30 resize-none"
+                <div id="paste-input-section" class="hidden mt-8 w-full">
+                    <textarea id="text-input" class="w-full h-48 p-4 rounded-xl outline-none mb-4 text-white placeholder-white/30 resize-none box-border"
                               style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);"
                               placeholder="Paste your educational content here..."></textarea>
                     <div class="flex justify-between">

@@ -396,8 +396,8 @@ class ArcadeEngine {
         this.ctx.fillStyle = '#E0E7FF';
         this.ctx.font = 'bold 15px Inter, system-ui, sans-serif';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('MEMORY MATCH', this.W / 2, 22);
-        this.drawProgressBar(this.matchedCount, this.totalPairs, 34);
+        this.ctx.fillText('MEMORY MATCH', this.W / 2, 54);
+        this.drawProgressBar(this.matchedCount, this.totalPairs, 70);
 
         for (const c of this.cards) {
             // Animate flip
@@ -439,11 +439,11 @@ class ArcadeEngine {
                 this.ctx.stroke();
                 // Text
                 this.ctx.fillStyle = '#FFF';
-                this.ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+                this.ctx.font = 'bold 10px Inter, system-ui, sans-serif';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                const lines = this.wrapText(c.text, c.w - 16);
-                lines.forEach((ln, i) => this.ctx.fillText(ln, 0, (i - (lines.length - 1) / 2) * 14));
+                const lines = this.wrapText(c.text, c.w - 12);
+                lines.forEach((ln, i) => this.ctx.fillText(ln, 0, (i - (lines.length - 1) / 2) * 12));
             } else {
                 // Face DOWN — ALL cards look the SAME (no color hints!)
                 const faceGrad = this.ctx.createLinearGradient(-c.w / 2, -c.h / 2, c.w / 2, c.h / 2);
@@ -693,7 +693,7 @@ class ArcadeEngine {
         }
 
         // Progress
-        this.drawProgressBar(this.sortedCount, this.sortItems.length, 14);
+        this.drawProgressBar(this.sortedCount, this.sortItems.length, 54);
         this.drawTitle('GRAVITY SORT — Which category?');
     }
 

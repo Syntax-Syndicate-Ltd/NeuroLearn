@@ -2,16 +2,18 @@
 {% block content %}
 <div class="max-w-3xl mx-auto pt-4 pb-8 animate-slide-up">
     <!-- Game HUD Bar -->
-    <div class="flex items-center gap-4 mb-4">
+    <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-y-2 gap-x-4 mb-4 w-full">
         <a href="/chapters" class="text-2xl font-black text-gray-400 hover:text-gray-600 transition-colors px-2" title="Quit Game">✕</a>
-        <div class="flex-1">
+        <div class="flex-1 min-w-[50px] sm:min-w-[100px]">
             <div class="progress-segmented" id="duo-progress-segmented"></div>
         </div>
-        <div class="streak-counter" id="duo-streak-counter">
-            <span class="streak-fire">🔥</span>
-            <span id="streak-val">0</span>
+        <div class="flex items-center gap-3">
+            <div class="streak-counter scale-90 sm:scale-100 origin-right" id="duo-streak-counter">
+                <span class="streak-fire">🔥</span>
+                <span id="streak-val">0</span>
+            </div>
+            <div class="hearts-bar scale-90 sm:scale-100 origin-left" id="duo-hearts-bar"></div>
         </div>
-        <div class="hearts-bar" id="duo-hearts-bar"></div>
     </div>
 
     <!-- Game Canvas Container -->

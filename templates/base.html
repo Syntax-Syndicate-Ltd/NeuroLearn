@@ -86,19 +86,19 @@
 
     <!-- Primary Navigation Header -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-2 sm:px-4 py-3 flex flex-wrap items-center justify-between gap-y-2">
             
             <!-- Logo -->
-            <a href="/" class="flex items-center gap-3 no-underline group" id="nav-logo">
-                <img src="{{ url_for('static', filename='favicon.svg') }}" alt="NeuroLearn Logo" class="w-10 h-10 rounded-xl shadow-md group-hover:scale-105 transition-transform">
+            <a href="/" class="flex items-center gap-2 md:gap-3 no-underline group flex-shrink-0" id="nav-logo">
+                <img src="{{ url_for('static', filename='favicon.svg') }}" alt="NeuroLearn Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl shadow-md group-hover:scale-105 transition-transform">
                 <div>
-                    <span class="font-extrabold text-xl tracking-tight text-slate-900 block leading-none">NeuroLearn</span>
-                    <span class="text-[10px] font-bold tracking-widest text-emerald-600 uppercase">Adaptive Platform</span>
+                    <span class="font-extrabold text-base md:text-xl tracking-tight text-slate-900 block leading-none">NeuroLearn</span>
+                    <span class="hidden sm:block text-[7px] md:text-[10px] font-bold tracking-widest text-emerald-600 uppercase">Adaptive Platform</span>
                 </div>
             </a>
 
             <!-- Action Controls & Profile -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 md:gap-4">
                 {% if session.get('user_id') or session.get('student_name') %}
                     <!-- XP Badge -->
                     <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-extrabold text-sm" id="xp-display">
@@ -121,8 +121,8 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 {% else %}
-                    <a href="/login" class="text-sm font-bold text-slate-600 hover:text-slate-900" id="nav-signin">Sign In</a>
-                    <a href="/signup" class="btn-primary text-xs py-2 px-4" id="nav-signup">Get Started</a>
+                    <a href="/login" class="btn-secondary text-[10px] md:text-xs !py-1.5 !px-3 md:!py-2 md:!px-4 !min-h-0 whitespace-nowrap" id="nav-signin" style="border-bottom-width: 4px;">Sign In</a>
+                    <a href="/signup" class="btn-primary text-[10px] md:text-xs !py-1.5 !px-3 md:!py-2 md:!px-4 !min-h-0 whitespace-nowrap" id="nav-signup" style="border-bottom-width: 4px;">Get Started</a>
                 {% endif %}
             </div>
         </div>

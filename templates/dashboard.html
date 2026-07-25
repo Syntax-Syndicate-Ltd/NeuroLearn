@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-6xl mx-auto pt-8 animate-slide-up">
+<div class="max-w-6xl mx-auto pt-4 md:pt-8 px-4 animate-slide-up">
     <!-- Profile Header -->
-    <div class="glass p-8 mb-10 relative overflow-hidden">
+    <div class="glass p-5 sm:p-8 mb-10 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1" style="background: linear-gradient(90deg, #FF6B6B, #FFB347, #4ECDC4, #6C63FF);"></div>
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div class="flex items-center gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-center gap-6">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left w-full md:w-auto">
                 <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg flex-shrink-0"
                      style="background: linear-gradient(135deg, #FF6B6B, #FFB347); box-shadow: 0 0 30px rgba(255,107,107,0.2);">
                     {{ user.display_name[0]|upper if user.display_name else '?' }}
@@ -22,12 +22,12 @@
                 </div>
             </div>
 
-            <div class="flex gap-4 items-center">
-                <div class="glass px-6 py-3 text-center" style="border-color: rgba(255,179,71,0.15); background: rgba(255,179,71,0.04);">
+            <div class="flex gap-4 items-center flex-wrap justify-center w-full md:w-auto">
+                <div class="glass px-6 py-3 text-center flex-1 sm:flex-none" style="border-color: rgba(255,179,71,0.15); background: rgba(255,179,71,0.04);">
                     <p class="text-[10px] font-bold uppercase" style="color: #5E5877;">Lifetime XP</p>
                     <p class="text-2xl font-bold" style="color: #FFB347;">⚡ {{ total_xp_all }}</p>
                 </div>
-                <div class="glass px-6 py-3 text-center" style="border-color: rgba(78,205,196,0.15); background: rgba(78,205,196,0.04);">
+                <div class="glass px-6 py-3 text-center flex-1 sm:flex-none" style="border-color: rgba(78,205,196,0.15); background: rgba(78,205,196,0.04);">
                     <p class="text-[10px] font-bold uppercase" style="color: #5E5877;">Topics</p>
                     <p class="text-2xl font-bold" style="color: #4ECDC4;">{{ topics|length }}</p>
                 </div>
@@ -49,9 +49,9 @@
 
     <!-- Topics Grid -->
     {% if topics %}
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
         {% for topic in topics %}
-        <div class="glass p-6 group hover:border-white/15 transition-all duration-300 relative overflow-hidden" id="topic-card-{{ topic.id }}">
+        <div class="glass p-4 sm:p-6 group hover:border-white/15 transition-all duration-300 relative overflow-hidden w-full box-border flex flex-col" id="topic-card-{{ topic.id }}">
             <div class="absolute top-0 left-0 h-1 transition-all duration-500" 
                  style="width: {{ topic.progress_pct }}%; background: linear-gradient(90deg, #FF6B6B, #FFB347, #4ECDC4);"></div>
             
@@ -61,33 +61,33 @@
                     style="{% if 'math' in topic.subject_domain|lower %}color: #FFB347; background: rgba(255,179,71,0.1);{% elif 'science' in topic.subject_domain|lower or 'bio' in topic.subject_domain|lower %}color: #2ED573; background: rgba(46,213,115,0.1);{% elif 'history' in topic.subject_domain|lower or 'social' in topic.subject_domain|lower %}color: #FF6B6B; background: rgba(255,107,107,0.1);{% else %}color: #4ECDC4; background: rgba(78,205,196,0.1);{% endif %}">
                     {{ topic.subject_domain }}
                 </span>
-                <button onclick="deleteTopic('{{ topic.id }}')" class="text-white/20 hover:text-rose transition-colors p-1" title="Delete topic">
+                <button onclick="deleteTopic('{{ topic.id }}')" class="text-slate-300 hover:text-rose-500 transition-colors p-1" title="Delete topic">
                     <i class="fas fa-trash-alt text-xs"></i>
                 </button>
             </div>
 
-            <h3 class="text-lg font-bold font-heading mb-3 group-hover:text-white transition-colors leading-tight" style="color: #EEEDF5;">
+            <h3 class="text-lg font-bold font-heading mb-3 group-hover:text-emerald-700 transition-colors leading-tight" style="color: #1E293B;">
                 {{ topic.topic_title }}
             </h3>
 
             <div class="mb-4">
                 <div class="flex justify-between text-xs mb-1">
-                    <span class="text-[#9B96B0]">Progress</span>
-                    <span class="font-bold" style="{% if topic.progress_pct == 100 %}color: #2ED573;{% elif topic.progress_pct > 50 %}color: #4ECDC4;{% else %}color: #EEEDF5;{% endif %}">{{ topic.progress_pct }}%</span>
+                    <span class="text-slate-500">Progress</span>
+                    <span class="font-bold" style="{% if topic.progress_pct == 100 %}color: #2ED573;{% elif topic.progress_pct > 50 %}color: #4ECDC4;{% else %}color: #475569;{% endif %}">{{ topic.progress_pct }}%</span>
                 </div>
                 <div class="w-full h-2 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.05);">
                     <div class="h-full rounded-full transition-all duration-700" 
                          style="width: {{ topic.progress_pct }}%; {% if topic.progress_pct == 100 %}background: #2ED573;{% elif topic.progress_pct > 50 %}background: linear-gradient(90deg, #FF6B6B, #4ECDC4);{% else %}background: linear-gradient(135deg, #FF6B6B, #FFB347);{% endif %}"></div>
                 </div>
-                <p class="text-[10px] mt-1" style="color: #5E5877;">{{ topic.completed_chapters }} / {{ topic.total_chapters }} chapters completed</p>
+                <p class="text-[10px] mt-1" style="color: #64748B;">{{ topic.completed_chapters }} / {{ topic.total_chapters }} chapters completed</p>
             </div>
 
-            <div class="flex justify-between items-center mb-5 pt-3" style="border-top: 1px solid rgba(255,255,255,0.04);">
+            <div class="flex justify-between items-center mb-5 pt-3 border-t border-slate-100">
                 <div class="flex items-center gap-1">
-                    <span class="text-sm font-bold" style="color: #FFB347;">⚡ {{ topic.total_xp }}</span>
-                    <span class="text-[10px]" style="color: #5E5877;">XP</span>
+                    <span class="text-sm font-bold" style="color: #F59E0B;">⚡ {{ topic.total_xp }}</span>
+                    <span class="text-[10px]" style="color: #64748B;">XP</span>
                 </div>
-                <span class="text-[10px]" style="color: #5E5877;">
+                <span class="text-[10px]" style="color: #64748B;">
                     <i class="far fa-clock mr-1"></i>
                     {% if topic.last_accessed %}{{ topic.last_accessed[:10] }}{% else %}Recently{% endif %}
                 </span>
