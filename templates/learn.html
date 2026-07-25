@@ -1,0 +1,684 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="learn-page animate-slide-up" data-chapter-id="{{ chapter.chapter_id }}" data-topic-id="{{ topic_id }}" data-preferred-language="{{ preferred_language }}">
+    <!-- Top Progress Bar -->
+    <div class="learn-topbar">
+        <a href="/chapters" class="learn-back-link"><i class="fas fa-arrow-left mr-2"></i> ROADMAP</a>
+        <div class="flex-1 h-1 rounded-full overflow-hidden mx-4" style="background: rgba(255,255,255,0.05);">
+            <div id="playback-progress" class="h-full transition-all duration-300" style="width: 0%; background: linear-gradient(90deg, #FF6B6B, #FFB347);"></div>
+        </div>
+        
+        <!-- Mode Indicator & Manual Triggers -->
+        <div class="flex items-center gap-2 mr-4">
+            <div class="mode-indicator" id="mode-indicator">
+                <div class="mode-indicator-dot" id="mode-dot"></div>
+                <span class="mode-indicator-label" id="mode-label">NORMAL</span>
+            </div>
+            
+            <button onclick="window.manager.switchMode('simple', 'manual')" class="mode-manual-btn" style="color: #FFB347; border-color: rgba(255,179,71,0.3);" title="Manually switch to Simple Mode">
+                <i class="fas fa-lightbulb"></i> <span class="hidden md:inline text-[10px] ml-1">SIMPLE</span>
+            </button>
+            <button onclick="window.manager.switchMode('story', 'manual')" class="mode-manual-btn" style="color: #FF6B6B; border-color: rgba(255,107,107,0.3);" title="Manually switch to Story Mode">
+                <i class="fas fa-book-open"></i> <span class="hidden md:inline text-[10px] ml-1">STORY</span>
+            </button>
+        </div>
+        
+        <div class="arcs-strip !mb-0 !gap-2">
+            <div class="arcs-item" title="Attention">A</div>
+            <div class="arcs-item active" title="Relevance">R</div>
+            <div class="arcs-item" title="Confidence">C</div>
+            <div class="arcs-item" title="Satisfaction">S</div>
+        </div>
+    </div>
+
+    <!-- MODE VIEWPORT: All three modes live here, only one visible at a time -->
+    <div class="learn-mode-viewport" id="learn-mode-viewport">
+        
+        <!-- NORMAL MODE: 2-Panel Layout -->
+        <div class="learn-grid learn-mode-panel" id="normal-mode-content" role="main">
+            
+            <!-- LEFT: Audio Panel -->
+            <div class="learn-audio-panel glass">
+                <!-- Chapter Title -->
+                <div class="learn-audio-header">
+                    <h2 class="learn-chapter-title">{{ chapter.title }}</h2>
+                    <span class="learn-chapter-meta">{{ chapter.subject_domain }}</span>
+                </div>
+                
+                <!-- Webcam Emotion Detector -->
+                <div id="emotion-detector-container" class="emotion-detector-section"></div>
+                
+                <!-- Visualizer Canvas -->
+                <canvas id="viz-canvas" class="learn-canvas"></canvas>
+                
+                <!-- Time Display -->
+                <div class="learn-time-row">
+                    <span id="time-display" class="learn-time-text">0:00 / 0:00</span>
+                </div>
+                
+                <!-- Playback Controls -->
+                <div class="learn-controls" style="margin-top: 0.5rem; justify-content: space-between; padding: 0 1rem;">
+                    <button id="btn-play" class="learn-play-btn">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                    <div class="learn-ambience-control">
+                        <label class="learn-ambience-label">AMBIANCE</label>
+                        <input type="range" id="ambience-vol" min="-40" max="-10" step="1" value="-22" class="learn-ambience-slider">
+                    </div>
+                </div>
+                
+                <audio id="audio-element" style="display:none;" preload="auto" crossorigin="anonymous"></audio>
+                
+                <!-- Key Concepts -->
+                <div class="learn-concepts-section">
+                    <div class="learn-concepts-header">
+                        <span class="learn-concepts-label"><i class="fas fa-tags mr-2"></i> Key Concepts</span>
+                    </div>
+                    <div id="mermaid-container" class="learn-concepts-container"></div>
+                </div>
+            </div>
+            
+            <!-- RIGHT: Text Panel -->
+            <div class="learn-text-panel glass" style="border-radius: 24px;">
+                <div class="learn-text-header">
+                    <span class="learn-text-label font-black text-sm"><i class="fas fa-align-left mr-2"></i> LESSON SUMMARY</span>
+                    <button id="toggle-read" class="learn-read-btn">READ INSTEAD</button>
+                </div>
+                
+                <div id="text-container" class="learn-text-content">
+                    <!-- Sentences rendered here -->
+                </div>
+
+                <!-- Action Button to Take Quiz -->
+                <div id="continue-panel" class="learn-continue-panel my-4">
+                    <a href="/quiz/{{ chapter.chapter_id }}" class="btn-primary btn-big w-full text-center">
+                        TAKE QUIZ ➔
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- STORY MODE: replaces normal when active -->
+        <div id="story-mode-container" class="learn-mode-panel learn-mode-alt hidden"></div>
+        
+        <!-- SIMPLE MODE: replaces normal when active -->
+        <div id="simple-mode-container" class="learn-mode-panel learn-mode-alt hidden"></div>
+        
+    </div>
+    
+    <!-- Accessibility Toolbar (persists across all modes) -->
+    <div class="a11y-toolbar" role="toolbar" aria-label="Accessibility tools" id="main-content">
+        <button id="font-increase" aria-label="Increase text size" title="Larger text (Alt+Plus)" class="a11y-tool-btn">A+</button>
+        <button id="font-decrease" aria-label="Decrease text size" title="Smaller text (Alt+Minus)" class="a11y-tool-btn">A-</button>
+        <button id="break-btn" data-action="break" aria-label="Take a break" title="Pause and rest" class="a11y-tool-btn"><i class="fas fa-pause-circle mr-1" aria-hidden="true"></i> Break</button>
+        {% if session.get('learning_profile', {}).get('has_dyslexia') %}
+        <button id="toggle-highlight" aria-label="Toggle sentence highlighting mode" class="a11y-tool-btn">Highlight</button>
+        {% endif %}
+        {% if session.get('learning_profile', {}).get('irlen_syndrome') %}
+        <button id="overlay-color-picker" aria-label="Change overlay colour" class="a11y-tool-btn">Overlay</button>
+        {% endif %}
+        {% if session.get('learning_profile', {}).get('sensory_visual') %}
+        <button id="toggle-low-stim" aria-label="Toggle minimal interface mode" class="a11y-tool-btn">Minimal</button>
+        {% endif %}
+    </div>
+    
+    <!-- Mode Switch Notification Banner -->
+    <div id="mode-switch-banner" class="mode-switch-banner hidden">
+        <div class="mode-switch-banner-inner">
+            <span class="mode-switch-icon" id="mode-switch-icon"><i class="fas fa-sync-alt"></i></span>
+            <div class="mode-switch-text">
+                <strong id="mode-switch-title">Switching Mode</strong>
+                <span id="mode-switch-desc">Adapting content to your state...</span>
+            </div>
+            <button class="mode-switch-dismiss" onclick="dismissModeBanner()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Fullscreen Viz Modal -->
+<div id="viz-modal" class="fixed inset-0 z-[2000] bg-black/90 p-12 hidden opacity-0 transition-opacity duration-300">
+    <button onclick="expandViz()" class="absolute top-8 right-8 text-3xl text-white/50 hover:text-white"><i class="fas fa-times"></i></button>
+    <div id="modal-container" class="w-full h-full flex items-center justify-center p-12"></div>
+</div>
+
+<style>
+    /* === LEARN PAGE LAYOUT === */
+    .learn-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        height: calc(100vh - 100px);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .learn-topbar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0 0.75rem 0;
+        flex-shrink: 0;
+    }
+    
+    .learn-back-link {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color 0.2s;
+    }
+    .learn-back-link:hover { color: var(--text-primary); }
+    
+    /* === MODE VIEWPORT: shared container for all 3 modes === */
+    .learn-mode-viewport {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    /* Each mode panel fills the viewport */
+    .learn-mode-panel {
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Alt mode panels (story/simple) overlay normal content */
+    .learn-mode-alt {
+        position: absolute;
+        inset: 0;
+        overflow-y: auto;
+        z-index: 10;
+        background: var(--bg-primary, #0c0a14);
+    }
+    .learn-mode-alt.hidden {
+        display: none !important;
+    }
+    
+    .learn-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 1rem;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .learn-grid.hidden {
+        display: none !important;
+    }
+    
+    /* === MODE INDICATOR === */
+    .mode-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.75rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
+        margin-right: 0.5rem;
+        transition: all 0.3s;
+    }
+    .mode-indicator-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--emerald);
+    }
+    .mode-indicator-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--text-secondary);
+    }
+    .mode-indicator.story-active {
+        background: var(--coral-glow);
+        border-color: rgba(232, 80, 91, 0.2);
+    }
+    .mode-indicator.story-active .mode-indicator-dot { background: var(--coral); }
+    .mode-indicator.story-active .mode-indicator-label { color: var(--coral); }
+    .mode-indicator.simple-active {
+        background: var(--amber-glow);
+        border-color: rgba(240, 160, 48, 0.2);
+    }
+    .mode-indicator.simple-active .mode-indicator-dot { background: var(--amber); }
+    .mode-indicator.simple-active .mode-indicator-label { color: var(--amber); }
+    
+    .mode-manual-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
+        padding: 0.3rem 0.6rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+    
+    /* === MODE SWITCH BANNER === */
+    .mode-switch-banner {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1500;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mode-switch-banner.hidden {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+        pointer-events: none;
+    }
+    .mode-switch-banner-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-glass);
+        border-radius: 14px;
+        box-shadow: var(--shadow-lg);
+    }
+    .mode-switch-icon { font-size: 1.5rem; }
+    .mode-switch-text { display: flex; flex-direction: column; gap: 0.1rem; }
+    .mode-switch-text strong { font-size: 0.8rem; color: var(--text-primary); }
+    .mode-switch-text span { font-size: 0.65rem; color: var(--text-secondary); }
+    .mode-switch-dismiss {
+        background: none; border: none; color: var(--text-muted);
+        cursor: pointer; font-size: 0.8rem; padding: 0.25rem;
+        transition: color 0.2s;
+    }
+    .mode-switch-dismiss:hover { color: white; }
+    
+    /* === AUDIO PANEL (LEFT) === */
+    .learn-audio-panel {
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem;
+        overflow: hidden;
+    }
+    
+    .learn-audio-header {
+        text-align: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .learn-chapter-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        font-family: var(--font-heading);
+        line-height: 1.3;
+        margin-bottom: 0.25rem;
+    }
+    
+    .learn-chapter-meta {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+    }
+    
+    .learn-canvas {
+        width: 100%;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .learn-time-row {
+        text-align: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .learn-time-text {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    
+    .learn-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .learn-play-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--indigo);
+        color: white;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-md);
+        flex-shrink: 0;
+    }
+    .learn-play-btn:hover { transform: scale(1.08); }
+    .learn-play-btn:active { transform: scale(0.95); }
+    .learn-play-btn:disabled { opacity: 0.5; cursor: wait; }
+    
+    .learn-ambience-control {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .learn-ambience-label {
+        font-size: 0.55rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+    }
+    .learn-ambience-slider {
+        width: 100px;
+        accent-color: var(--indigo);
+    }
+    
+    /* === KEY CONCEPTS (replaces mindmap) === */
+    .learn-concepts-section {
+        flex: 1;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--border-glass);
+        padding-top: 0.75rem;
+        overflow: hidden;
+    }
+    
+    .learn-concepts-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .learn-concepts-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--teal);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+    
+    .learn-concepts-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border-radius: 10px;
+        border: 1px solid var(--border-glass);
+        overflow: hidden;
+        padding: 0.5rem;
+    }
+    
+    .learn-concepts-container svg {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    /* Alias for backwards compat with JS that references mindmap classes */
+    .learn-mindmap-section { display: none !important; }
+    
+    /* === TEXT PANEL (RIGHT) === */
+    .learn-text-panel {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .learn-text-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .learn-text-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--indigo);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+    
+    .learn-read-btn {
+        font-size: 0.6rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-glass);
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        transition: all 0.2s;
+    }
+    .learn-read-btn:hover { color: var(--text-primary); border-color: var(--indigo); }
+    
+    .learn-text-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        scroll-behavior: smooth;
+        display: flex; 
+        flex-direction: column; 
+        gap: 1rem;
+    }
+    
+    .learn-continue-panel {
+        padding-top: 1rem;
+        flex-shrink: 0;
+        transition: all 0.7s;
+    }
+    
+    /* === SENTENCE STYLES === */
+    .sentence {
+        transition: all 0.5s ease;
+        cursor: pointer;
+        border-left: 2px solid transparent;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0 10px 10px 0;
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+    .sentence:hover { background: var(--bg-tertiary); }
+    .sentence.past { color: var(--text-muted); }
+    .sentence.active {
+        color: var(--text-primary);
+        border-left-color: var(--indigo);
+        background: var(--indigo-glow);
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    .sentence.upcoming { color: var(--text-secondary); opacity: 0.6; }
+    
+    /* === RESPONSIVE === */
+    @media (max-width: 900px) {
+        .learn-grid {
+            grid-template-columns: 1fr;
+            overflow-y: auto;
+        }
+        .learn-page { height: auto; min-height: calc(100vh - 100px); }
+        .learn-audio-panel { max-height: none; }
+    }
+    
+    /* === SCROLLBAR (text panel only) === */
+    .learn-text-content::-webkit-scrollbar { width: 4px; }
+    .learn-text-content::-webkit-scrollbar-track { background: transparent; }
+    .learn-text-content::-webkit-scrollbar-thumb { background: var(--indigo-glow); border-radius: 4px; }
+
+    /* === ACCESSIBILITY TOOLBAR === */
+    .a11y-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+    .a11y-tool-btn {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 6px 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-glass);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .a11y-tool-btn:hover { background: rgba(108, 99, 255, 0.1); color: white; border-color: rgba(108, 99, 255, 0.25); }
+    .a11y-tool-btn:focus-visible { outline: 3px solid #6C63FF; outline-offset: 3px; }
+
+    .highlight-sentences .sentence:hover {
+        background: rgba(108, 99, 255, 0.1) !important;
+        border-left-color: #6C63FF !important;
+    }
+
+    /* === NEUROSUPPORT OVERLAY === */
+    .neurosupport-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(12, 10, 20, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: slide-in-up 0.4s ease;
+    }
+    .neurosupport-card {
+        max-width: 440px;
+        width: 90%;
+        background: rgba(17, 14, 28, 0.95);
+        border: 1px solid rgba(46, 213, 115, 0.2);
+        border-radius: 24px;
+        padding: 32px;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .neurosupport-emoji { font-size: 2.5rem; margin-bottom: 12px; }
+    .neurosupport-title {
+        font-family: var(--font-heading);
+        font-size: 1.2rem; font-weight: 700;
+        color: #2ED573; margin-bottom: 8px;
+    }
+    .neurosupport-message {
+        font-size: 0.85rem; color: var(--text-secondary);
+        line-height: 1.6; margin-bottom: 24px;
+    }
+    .neurosupport-actions {
+        display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+    .neurosupport-btn {
+        padding: 10px 20px; border-radius: 12px;
+        font-size: 0.8rem; font-weight: 600;
+        cursor: pointer; transition: all 0.2s;
+        border: none;
+    }
+    .neurosupport-btn-simplify {
+        background: linear-gradient(135deg, #2ED573, #1abc9c);
+        color: white;
+    }
+    .neurosupport-btn-simplify:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3); }
+    .neurosupport-btn-continue {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+    }
+    .neurosupport-btn-continue:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+</style>
+
+<!-- Pass Chapter Data to JS -->
+<script>
+    window.chapterData = {{ chapter|tojson }};
+    window.cognitiveStyle = "{{ style }}";
+    window.userVoice = "{{ user_voice }}";
+    window.topicId = "{{ topic_id }}";
+    window.preferredLanguage = "{{ preferred_language }}";
+    
+    // === ACCESSIBILITY TOOLBAR JS ===
+    document.getElementById('font-increase')?.addEventListener('click', () => {
+        const current = parseFloat(getComputedStyle(document.body).fontSize);
+        document.body.style.fontSize = Math.min(current + 2, 28) + 'px';
+        localStorage.setItem('nl_font_size', document.body.style.fontSize);
+    });
+    document.getElementById('font-decrease')?.addEventListener('click', () => {
+        const current = parseFloat(getComputedStyle(document.body).fontSize);
+        document.body.style.fontSize = Math.max(current - 2, 14) + 'px';
+        localStorage.setItem('nl_font_size', document.body.style.fontSize);
+    });
+    const savedFont = localStorage.getItem('nl_font_size');
+    if (savedFont) document.body.style.fontSize = savedFont;
+
+    document.getElementById('break-btn')?.addEventListener('click', () => {
+        const audio = document.querySelector('audio');
+        if (audio) audio.pause();
+        const overlay = document.createElement('div');
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Break time');
+        overlay.innerHTML = `<div style="background:rgba(0,0,0,0.85);position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;">
+            <h2 style="color:white;font-size:24px;font-family:var(--font-heading);">Take a moment</h2>
+            <p style="color:rgba(255,255,255,0.7);text-align:center;max-width:320px;">Breathe in… 4 counts. Hold… 4 counts. Out… 6 counts.</p>
+            <button onclick="this.closest('div').parentElement.remove()" style="padding:12px 32px;background:linear-gradient(135deg,#FF6B6B,#FF8E53);color:white;border:none;border-radius:12px;font-size:16px;cursor:pointer;min-height:44px;">I'm ready to continue</button>
+        </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('button').focus();
+    });
+
+    document.getElementById('toggle-highlight')?.addEventListener('click', function() {
+        document.body.classList.toggle('highlight-sentences');
+        this.setAttribute('aria-pressed', document.body.classList.contains('highlight-sentences'));
+    });
+
+    function dismissModeBanner() {
+        const banner = document.getElementById('mode-switch-banner');
+        if (banner) banner.classList.add('hidden');
+    }
+    
+    // Stub expandViz for compatibility (mindmap removed)  
+    function expandViz() {}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<!-- face-api.js for emotion detection -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.min.js"></script>
+
+<!-- Emotion + Mode Modules -->
+<script src="{{ url_for('static', filename='js/emotion_detector.js') }}"></script>
+<script src="{{ url_for('static', filename='js/story_mode.js') }}"></script>
+<script src="{{ url_for('static', filename='js/simple_mode.js') }}"></script>
+
+<!-- Core Learn Page -->
+<script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+{% endblock %}

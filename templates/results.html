@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto pt-6 pb-20 text-center animate-slide-up">
+
+    <!-- Victory Header Card -->
+    <div class="glass p-8 md:p-12 mb-8 relative overflow-hidden text-center" style="border-radius: 28px;">
+        <div class="text-7xl mb-4 animate-pop">⭐</div>
+        <h1 class="text-4xl md:text-5xl font-black font-heading mb-2" style="color: #1E293B;">LEVEL COMPLETED!</h1>
+        <p class="text-lg font-bold mb-8" style="color: #64748B;">Great job completing {{ chapter.topic_title }}!</p>
+
+        <!-- 3-Star Rating Display -->
+        <div class="flex justify-center gap-4 text-5xl mb-8 animate-sparkle">
+            <span>⭐</span>
+            <span>⭐</span>
+            <span>⭐</span>
+        </div>
+
+        <!-- Score & XP Badges -->
+        <div class="flex flex-wrap justify-center gap-6 mb-8">
+            <div class="glass px-8 py-5 rounded-2xl flex items-center gap-4" style="background: #F0FDF4; border: 2px solid #10B981;">
+                <span class="text-3xl">🎯</span>
+                <div class="text-left">
+                    <div class="text-xs font-black uppercase" style="color: #059669;">ACCURACY</div>
+                    <div class="text-3xl font-black" style="color: #10B981;" id="score-text">{{ progress.quiz_score }}%</div>
+                </div>
+            </div>
+
+            <div class="glass px-8 py-5 rounded-2xl flex items-center gap-4" style="background: #FEF3C7; border: 2px solid #F59E0B;">
+                <span class="text-3xl">⚡</span>
+                <div class="text-left">
+                    <div class="text-xs font-black uppercase" style="color: #D97706;">XP GAINED</div>
+                    <div class="text-3xl font-black" style="color: #F59E0B;">+{{ progress.xp_earned }} XP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button to Next Level -->
+        <div class="flex justify-center">
+            <a href="/chapters" class="btn-primary btn-big text-center px-12">
+                CONTINUE LEVEL PATH ➔
+            </a>
+        </div>
+    </div>
+
+    <!-- AI Performance Insight -->
+    <div class="glass p-6 text-left mb-8" style="border-radius: 20px; background: #F8FAFC;">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="text-xl">💡</span>
+            <h3 class="text-base font-black uppercase" style="color: #10B981;">AI Learning Insight</h3>
+        </div>
+        <p class="text-base font-bold" style="color: #64748B;">{{ chapter.improvement_tip }}</p>
+    </div>
+</div>
+
+<!-- HIDDEN SHARE CARD -->
+<div id="share-card" class="fixed -left-[1000px] top-0 w-[400px] h-[250px] p-8 flex flex-col justify-between overflow-hidden"
+     style="background: #1E293B;">
+    <div class="relative z-10">
+        <h4 class="font-bold text-xs uppercase tracking-widest mb-1" style="color: #10B981;">NeuroLearn AI Achievement</h4>
+        <h2 class="text-2xl font-bold text-white mb-4">{{ student_name }}</h2>
+        <p class="text-sm" style="color: #94A3B8;">{{ chapter.topic_title }} Mastery</p>
+    </div>
+</div>
+
+<script>
+    window.resultData = {
+        score: {{ progress.quiz_score }},
+        xp: {{ progress.xp_earned }},
+        name: "{{ student_name }}",
+        topic: "{{ chapter.topic_title }}",
+        topicId: {{ topic_id|default(0) }}
+    };
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dna_card.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dnaCard = new DNACard();
+        const genBtn = document.getElementById('btn-gen-dna');
+        const dlBtn = document.getElementById('btn-download-dna');
+        const canvas = document.getElementById('dna-card-canvas');
+        const loading = document.getElementById('dna-card-loading');
+
+        genBtn.addEventListener('click', async () => {
+            const topicId = window.resultData?.topicId;
+            if (topicId === null || topicId === undefined) {
+                alert('Topic data not available for DNA card.');
+                return;
+            }
+
+            genBtn.style.display = 'none';
+            loading.classList.remove('hidden');
+
+            const data = await dnaCard.fetchData(topicId);
+            loading.classList.add('hidden');
+
+            if (data) {
+                canvas.style.display = 'block';
+                dnaCard.renderCard(data, canvas);
+                dlBtn.style.display = 'inline-flex';
+            } else {
+                genBtn.style.display = 'inline-flex';
+                alert('Could not generate DNA card. Try again later.');
+            }
+        });
+
+        dlBtn.addEventListener('click', () => {
+            dnaCard.downloadCard();
+        });
+    });
+</script>
+{% endblock %}

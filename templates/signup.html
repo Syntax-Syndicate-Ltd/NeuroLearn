@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto pt-8 md:pt-12 animate-slide-up">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl shadow-lg">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 mb-2">
+            {% if role == 'parent' %}Create Parent Account{% else %}Create Student Account{% endif %}
+        </h1>
+        <p class="text-slate-500 font-bold text-sm">
+            {% if role == 'parent' %}Manage your child's adaptive learning path{% else %}Save your XP, level progress & achievements{% endif %}
+        </p>
+    </div>
+
+    <!-- Error Messages -->
+    {% if errors %}
+    <div class="p-4 mb-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-bold">
+        {% for error in errors %}
+        <p class="flex items-center gap-2 {% if not loop.last %}mb-1{% endif %}">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Signup Form -->
+    <form method="POST" action="/signup?role={{ role }}" class="glass p-8 space-y-5 relative overflow-hidden" style="border-radius: 28px;">
+        <input type="hidden" name="user_type" value="{{ role }}">
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-display-name">
+                {% if role == 'parent' %}Your Name{% else %}Display Name{% endif %}
+            </label>
+            <input type="text" name="display_name" id="signup-display-name" value="{{ display_name }}"
+                   class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50"
+                   placeholder="{% if role == 'parent' %}Enter your name{% else %}How should we call you?{% endif %}">
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-username">Username *</label>
+            <input type="text" name="username" id="signup-username" value="{{ username }}" required minlength="3"
+                   class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50"
+                   placeholder="Choose a unique username">
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-email">Email *</label>
+            <input type="email" name="email" id="signup-email" value="{{ email }}" required
+                   class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50"
+                   placeholder="you@example.com">
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-age">
+                {% if role == 'parent' %}Child's Age Range{% else %}Your Age{% endif %} *
+            </label>
+            <select name="age_range" id="signup-age" required
+                    class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50">
+                <option value="5-7">5 to 7 Years</option>
+                <option value="8-10">8 to 10 Years</option>
+                <option value="11-13" selected>11 to 13 Years</option>
+                <option value="14-16">14 to 16 Years</option>
+                <option value="17+">17+ Years</option>
+            </select>
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-password">Password *</label>
+            <div class="relative">
+                <input type="password" name="password" id="signup-password" required minlength="6"
+                       class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50 pr-12"
+                       placeholder="Min 6 characters">
+                <button type="button" onclick="togglePassword('signup-password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-600" for="signup-confirm">Confirm Password *</label>
+            <input type="password" name="confirm_password" id="signup-confirm" required
+                   class="w-full rounded-xl px-4 py-3 outline-none font-bold text-slate-800 border-2 border-slate-200 focus:border-emerald-500 bg-slate-50"
+                   placeholder="Re-enter password">
+        </div>
+
+        <button type="submit" id="signup-submit-btn" class="btn-primary w-full py-4 text-base font-black mt-2">
+            CREATE ACCOUNT →
+        </button>
+    </form>
+
+    <div class="text-center mt-6 mb-16">
+        <p class="text-slate-500 font-bold text-sm">Already registered?
+            <a href="/login" class="font-black text-emerald-600 underline ml-1">Sign In →</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>
+{% endblock %}

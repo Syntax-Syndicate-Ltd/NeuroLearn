@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-xl mx-auto pt-20 text-center animate-slide-up">
+    <!-- Animated Spinner -->
+    <div class="relative w-48 h-48 mx-auto mb-12">
+        <div class="absolute inset-0 rounded-full" style="border: 4px solid rgba(255,107,107,0.15);"></div>
+        <div class="absolute inset-0 rounded-full animate-spin" style="border: 4px solid transparent; border-top-color: #FF6B6B;"></div>
+        <div class="absolute inset-4 rounded-full" style="border: 4px solid rgba(78,205,196,0.15);"></div>
+        <div class="absolute inset-4 rounded-full animate-spin-reverse" style="border: 4px solid transparent; border-bottom-color: #4ECDC4;"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-4xl">🧠</span>
+        </div>
+    </div>
+
+    <h2 class="text-3xl font-bold font-heading mb-6 text-gradient">Synthesizing Your Journey...</h2>
+    
+    <!-- Progress Bar -->
+    <div class="mb-3">
+        <div class="w-full h-3 rounded-full overflow-hidden shadow-lg" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
+            <div id="progress-bar" class="h-full transition-all duration-500 shadow-lg" style="width: 5%; background: linear-gradient(90deg, #FF6B6B, #FFB347, #4ECDC4); box-shadow: 0 0 10px rgba(78,205,196,0.3);"></div>
+        </div>
+        <p class="text-xs font-bold mt-2 text-right" style="color: #9B96B0;"><span id="progress-percent">5</span>%</p>
+    </div>
+
+    <!-- Status Message -->
+    <div class="glass p-8 mb-6" style="border-color: rgba(255,255,255,0.06);">
+        <p id="status-message" class="text-lg font-medium italic mb-4" style="color: #9B96B0;">Initializing pipeline...</p>
+        
+        <div class="space-y-3">
+            <div class="flex items-center gap-3">
+                <div id="stage-1-icon" class="w-5 h-5 rounded-full flex items-center justify-center" style="border: 2px solid rgba(255,107,107,0.3);">
+                    <span class="text-xs">•</span>
+                </div>
+                <span id="stage-1-text" class="text-xs" style="color: #5E5877;">Analyzing uploaded content</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="stage-2-icon" class="w-5 h-5 rounded-full flex items-center justify-center" style="border: 2px solid rgba(255,255,255,0.1);">
+                    <span class="text-xs">•</span>
+                </div>
+                <span id="stage-2-text" class="text-xs" style="color: #5E5877;">Creating learning structure</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="stage-3-icon" class="w-5 h-5 rounded-full flex items-center justify-center" style="border: 2px solid rgba(255,255,255,0.1);">
+                    <span class="text-xs">•</span>
+                </div>
+                <span id="stage-3-text" class="text-xs" style="color: #5E5877;">Personalizing for your profile</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="stage-4-icon" class="w-5 h-5 rounded-full flex items-center justify-center" style="border: 2px solid rgba(255,255,255,0.1);">
+                    <span class="text-xs">•</span>
+                </div>
+                <span id="stage-4-text" class="text-xs" style="color: #5E5877;">Finalizing experience</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivational Quotes -->
+    <div class="mt-16 py-8 opacity-50" style="border-top: 1px solid rgba(255,255,255,0.04);">
+        <p id="quote-display" class="text-sm italic leading-relaxed px-12">
+            "Education is not the learning of facts, but the training of the mind to think."
+        </p>
+    </div>
+</div>
+
+<style>
+    @keyframes spin-reverse {
+        to { transform: rotate(-360deg); }
+    }
+    .animate-spin-reverse {
+        animation: spin-reverse 2s linear infinite;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const quotes = [
+        "Education is not the learning of facts, but the training of the mind to think.",
+        "Your cognitive profile is unique. Your education should be too.",
+        "Precision in synthesized education reduces cognitive load.",
+        "Focus on what matters. Let the AI handle the structure.",
+        "Adaptive learning isn't just a term, it's a commitment to every mind."
+    ];
+
+    let quoteIdx = 0;
+    setInterval(() => {
+        const q = document.getElementById('quote-display');
+        q.style.opacity = 0;
+        setTimeout(() => {
+            quoteIdx = (quoteIdx + 1) % quotes.length;
+            q.innerText = `"${quotes[quoteIdx]}"`;
+            q.style.opacity = 1;
+        }, 1000);
+    }, 6000);
+
+    const statusEl = document.getElementById('status-message');
+    const progressEl = document.getElementById('progress-bar');
+    const progressPercentEl = document.getElementById('progress-percent');
+
+    function updateStage(stageNum, active = true) {
+        for (let i = 1; i <= 4; i++) {
+            const icon = document.getElementById(`stage-${i}-icon`);
+            const text = document.getElementById(`stage-${i}-text`);
+            
+            if (i < stageNum) {
+                icon.style.borderColor = '#2ED573';
+                icon.style.background = 'rgba(46,213,115,0.1)';
+                icon.innerHTML = '<i class="fas fa-check text-xs" style="color:#2ED573;"></i>';
+                text.style.color = '#2ED573';
+            } else if (i === stageNum && active) {
+                icon.style.borderColor = '#4ECDC4';
+                icon.classList.add('animate-pulse');
+                text.style.color = '#4ECDC4';
+            } else {
+                icon.style.borderColor = 'rgba(255,255,255,0.1)';
+                icon.style.background = '';
+                icon.classList.remove('animate-pulse');
+                text.style.color = '#5E5877';
+            }
+        }
+    }
+
+    function updateProgress(percent, message) {
+        progressEl.style.width = percent + '%';
+        progressPercentEl.textContent = Math.round(percent);
+        statusEl.textContent = message;
+    }
+
+    async function initPipeline() {
+        try {
+            updateProgress(5, "Initializing pipeline...");
+            updateStage(1, true);
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            updateProgress(20, "Analyzing your uploaded content...");
+            updateStage(1, false);
+            updateStage(2, true);
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+            updateProgress(40, "Creating optimal learning structure...");
+            
+            const response = await fetch('/api/init-pipeline', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Pipeline initialization failed');
+            }
+
+            updateProgress(65, "Personalizing content for your profile...");
+            updateStage(2, false);
+            updateStage(3, true);
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+            updateProgress(85, `✓ ${result.chapters_count} personalized chapters ready!`);
+            updateStage(3, false);
+            updateStage(4, true);
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            updateProgress(100, "✓ Launching your learning experience...");
+            updateStage(4, false);
+            
+            progressEl.style.boxShadow = '0 0 20px rgba(46, 213, 115, 0.4)';
+            await new Promise(resolve => setTimeout(resolve, 1200));
+
+            window.location.href = '/chapters';
+
+        } catch (error) {
+            console.error("Pipeline initialization error:", error);
+            updateProgress(0, `❌ Error: ${error.message}`);
+            statusEl.style.color = '#FF4757';
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            initPipeline();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPipeline);
+</script>
+{% endblock %}

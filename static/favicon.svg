@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="50%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="brainGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFC800"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" />
+
+  <!-- Brain Outer Outline / Left Hemisphere -->
+  <path d="M 30 16 
+           C 24 16, 18 19, 17 25 
+           C 14 26, 13 31, 15 35 
+           C 13 39, 15 44, 19 46 
+           C 22 48, 27 47, 30 43 Z" 
+        fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Right Hemisphere -->
+  <path d="M 34 16 
+           C 40 16, 46 19, 47 25 
+           C 50 26, 51 31, 49 35 
+           C 51 39, 49 44, 45 46 
+           C 42 48, 37 47, 34 43 Z" 
+        fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Fissure Divider -->
+  <line x1="32" y1="16" x2="32" y2="44" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+
+  <!-- Neural Nodes & Circuits -->
+  <circle cx="23" cy="27" r="3" fill="url(#brainGlow)" filter="url(#glow)"/>
+  <circle cx="41" cy="27" r="3" fill="url(#brainGlow)" filter="url(#glow)"/>
+  <circle cx="21" cy="38" r="2.5" fill="url(#brainGlow)"/>
+  <circle cx="43" cy="38" r="2.5" fill="url(#brainGlow)"/>
+  <circle cx="32" cy="23" r="2" fill="#FFFFFF"/>
+  <circle cx="32" cy="35" r="2" fill="#FFFFFF"/>
+
+  <!-- Synapse Connector Lines -->
+  <line x1="23" y1="27" x2="32" y2="23" stroke="#FFC800" stroke-width="1.5" opacity="0.8"/>
+  <line x1="41" y1="27" x2="32" y2="23" stroke="#FFC800" stroke-width="1.5" opacity="0.8"/>
+  <line x1="21" y1="38" x2="32" y2="35" stroke="#10B981" stroke-width="1.5" opacity="0.8"/>
+  <line x1="43" y1="38" x2="32" y2="35" stroke="#10B981" stroke-width="1.5" opacity="0.8"/>
+</svg>

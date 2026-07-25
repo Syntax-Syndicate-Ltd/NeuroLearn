@@ -1,0 +1,25 @@
+# Environment & Secrets
+.env
+.env.local
+*.env
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Flask Session & Database
+flask_session/
+*.db
+*.sqlite
+
+# Compiled Executables & Binaries
+*.exe
+*.o
+*.obj
+*.dll
+
+# OS files
+.DS_Store
+Thumbs.db

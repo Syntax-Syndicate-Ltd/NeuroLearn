@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto pt-8">
+    <!-- Progress Dots -->
+    <div class="flex justify-center gap-4 mb-12">
+        <div id="dot-1" class="w-3 h-3 rounded-full transition-all duration-300" style="background: #FF6B6B; box-shadow: 0 0 10px rgba(255,107,107,0.3);"></div>
+        <div id="dot-2" class="w-3 h-3 rounded-full transition-all duration-300" style="background: rgba(255,255,255,0.08);"></div>
+        <div id="dot-3" class="w-3 h-3 rounded-full transition-all duration-300" style="background: rgba(255,255,255,0.08);"></div>
+    </div>
+
+    <div class="relative overflow-hidden min-h-[500px]">
+        
+        <!-- Step 1: Name -->
+        <div id="step-1" class="wizard-step flex flex-col items-center justify-center p-8 text-center transition-all duration-500">
+            <h2 class="text-4xl font-bold font-heading mb-8">What should we call you?</h2>
+            <div class="relative w-full max-w-md">
+                <input type="text" id="student-name" value="{{ name }}" 
+                       class="w-full bg-transparent text-4xl text-center py-4 outline-none transition-all font-heading placeholder-white/20"
+                       style="border-bottom: 2px solid rgba(255,255,255,0.15);"
+                       onfocus="this.style.borderBottomColor='#FF6B6B'" onblur="this.style.borderBottomColor='rgba(255,255,255,0.15)'"
+                       placeholder="Enter Your Name">
+                <p class="text-sm mt-12" style="color: #9B96B0;">This is how your AI tutor will address you throughout the journey.</p>
+            </div>
+            <button onclick="nextStep(2)" class="btn-primary mt-12 px-12 py-4">
+                Next <i class="fas fa-chevron-right ml-2 text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Step 2: Cognitive Style -->
+        <div id="step-2" class="wizard-step hidden opacity-0 translate-x-12 flex flex-col items-center p-8 transition-all duration-500">
+            <h2 class="text-3xl font-bold font-heading mb-10 text-center">How do you want to learn today?</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
+                <button onclick="selectStyle('focus')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative" id="card-focus">
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style="background: rgba(108,99,255,0.04);"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl">⚓</span>
+                            <h3 class="text-2xl font-bold font-heading">Focus Mode</h3>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color: #6C63FF;">Structured • Calm • Deep Dives</p>
+                        <p class="text-sm leading-relaxed" style="color: #9B96B0;">Perfect for complex topics. Your AI tutor speaks in rich, metaphorical prose at a measured pace.</p>
+                    </div>
+                </button>
+
+                <button onclick="selectStyle('energy')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative" id="card-energy">
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style="background: rgba(78,205,196,0.04);"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl">⚡</span>
+                            <h3 class="text-2xl font-bold font-heading">Energy Mode</h3>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color: #4ECDC4;">Fast • Punchy • Hyped Up</p>
+                        <p class="text-sm leading-relaxed" style="color: #9B96B0;">Turbocharge your learning. Your AI tutor speaks with rhythm and drive — like a hype coach.</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="flex gap-4 mt-12 w-full max-w-4xl">
+                <button onclick="nextStep(1)" class="btn-secondary px-8">Back</button>
+                <button onclick="nextStep(3)" class="btn-primary flex-1 py-4" id="btn-next-2" disabled>Continued Choosing Style...</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Expression & Voice -->
+        <div id="step-3" class="wizard-step hidden opacity-0 translate-x-12 flex flex-col items-center p-8 transition-all duration-500">
+            <h2 class="text-3xl font-bold font-heading mb-12 text-center">Finalizing Your Experience</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12 w-full max-w-4xl">
+                <div class="space-y-6">
+                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #FF6B6B;">Your Narrator's Voice</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="voice" value="standard_female" checked class="hidden peer">
+                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
+                                 style="border-color: rgba(255,255,255,0.06);">
+                                <i class="fas fa-venus text-xl mb-1"></i>
+                                <p class="text-xs font-bold leading-tight">Standard<br>Female</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="voice" value="standard_male" class="hidden peer">
+                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
+                                 style="border-color: rgba(255,255,255,0.06);">
+                                <i class="fas fa-mars text-xl mb-1"></i>
+                                <p class="text-xs font-bold leading-tight">Standard<br>Male</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="voice" value="fun_female" class="hidden peer">
+                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
+                                 style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-xl mb-1 block">✨</span>
+                                <p class="text-xs font-bold leading-tight">Energetic<br>Female</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="voice" value="fun_male" class="hidden peer">
+                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
+                                 style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-xl mb-1 block">⚡</span>
+                                <p class="text-xs font-bold leading-tight">Energetic<br>Male</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #4ECDC4;">How are you feeling?</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="emotion" value="great" checked class="hidden peer">
+                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-2xl mb-1 block">😄</span>
+                                <p class="text-[10px] font-bold uppercase">Great</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="emotion" value="okay" class="hidden peer">
+                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-2xl mb-1 block">😐</span>
+                                <p class="text-[10px] font-bold uppercase">Okay</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="emotion" value="tired" class="hidden peer">
+                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-2xl mb-1 block">😴</span>
+                                <p class="text-[10px] font-bold uppercase">Tired</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="emotion" value="anxious" class="hidden peer">
+                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
+                                <span class="text-2xl mb-1 block">😰</span>
+                                <p class="text-[10px] font-bold uppercase">Anxious</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Language Selection -->
+                <div class="space-y-6 md:col-span-2">
+                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #2ED573;">Language of Learning</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="preferred_language" value="en" checked class="hidden peer">
+                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
+                                <p class="text-xs font-bold">English</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="preferred_language" value="hi" class="hidden peer">
+                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
+                                <p class="text-xs font-bold">हिंदी</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="preferred_language" value="mr" class="hidden peer">
+                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
+                                <p class="text-xs font-bold">मराठी</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="preferred_language" value="ta" class="hidden peer">
+                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
+                                <p class="text-xs font-bold">தமிழ்</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="preferred_language" value="te" class="hidden peer">
+                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
+                                <p class="text-xs font-bold">తెలుగు</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4 mt-16 w-full max-w-4xl">
+                <button onclick="nextStep(2)" class="btn-secondary px-8">Back</button>
+                <button onclick="startProcessing()" class="btn-primary flex-1 py-4 text-xl">
+                    Let's Build Your Course →
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .wizard-step.hidden { display: none; }
+    .style-card.active {
+        border-color: #6C63FF !important;
+        box-shadow: 0 4px 30px rgba(108, 99, 255, 0.15);
+        background: rgba(108, 99, 255, 0.04);
+    }
+    .style-card.active#card-energy {
+        border-color: #4ECDC4 !important;
+        box-shadow: 0 4px 30px rgba(78, 205, 196, 0.15);
+        background: rgba(78, 205, 196, 0.04);
+    }
+    .peer:checked + div {
+        border-color: #6C63FF !important;
+        background: rgba(108, 99, 255, 0.06);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentStep = 1;
+    let selectedStyle = null;
+
+    function nextStep(step) {
+        if (currentStep === 1 && !document.getElementById('student-name').value.trim()) {
+            alert("Please enter your name first!");
+            return;
+        }
+
+        const currentEl = document.getElementById(`step-${currentStep}`);
+        currentEl.classList.add('opacity-0', 'translate-x-[-12px]');
+        setTimeout(() => {
+            currentEl.classList.add('hidden');
+            const nextEl = document.getElementById(`step-${step}`);
+            nextEl.classList.remove('hidden');
+            setTimeout(() => {
+                nextEl.classList.remove('opacity-0', 'translate-x-12');
+                currentStep = step;
+                updateDots();
+            }, 10);
+        }, 300);
+    }
+
+    function updateDots() {
+        for (let i = 1; i <= 3; i++) {
+            const dot = document.getElementById(`dot-${i}`);
+            if (i <= currentStep) {
+                dot.style.background = '#FF6B6B';
+                dot.style.boxShadow = '0 0 10px rgba(255,107,107,0.3)';
+            } else {
+                dot.style.background = 'rgba(255,255,255,0.08)';
+                dot.style.boxShadow = 'none';
+            }
+        }
+    }
+
+    function selectStyle(style) {
+        selectedStyle = style;
+        document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+        document.getElementById(`card-${style}`).classList.add('active');
+        
+        const btn = document.getElementById('btn-next-2');
+        btn.disabled = false;
+        btn.textContent = `Continue with ${style.toUpperCase()} Mode →`;
+    }
+
+    async function startProcessing() {
+        const payload = {
+            name: document.getElementById('student-name').value,
+            style: selectedStyle,
+            voice: document.querySelector('input[name="voice"]:checked').value,
+            emotion: document.querySelector('input[name="emotion"]:checked').value,
+            preferred_language: document.querySelector('input[name="preferred_language"]:checked')?.value || 'en'
+        };
+
+        const response = await fetch('/onboarding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.redirect) window.location.href = result.redirect;
+    }
+</script>
+{% endblock %}

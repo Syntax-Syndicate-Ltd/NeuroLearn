@@ -1,0 +1,68 @@
+:root {
+    --bg-dark: #0a0a0f;
+    --accent-primary: #8a2be2;
+    --accent-secondary: #00ffff;
+}
+
+/* 3D Canvas layer behind Tailwind UI */
+#canvas-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+    background: #000;
+}
+
+/* Floating labels for 3D boxes */
+#game-ui-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.floating-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px var(--accent-secondary), 0 0 20px var(--accent-secondary);
+    transition: opacity 0.1s;
+}
+
+/* Shimmer Keyframe for Drag/Drop */
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.shimmer-bg {
+    background: rgba(0,0,0,0.3);
+    background-image: linear-gradient(to right, transparent 0%, rgba(138,43,226,0.15) 20%, transparent 40%, transparent 100%);
+    background-repeat: no-repeat;
+    background-size: 1000px 100%;
+    animation: shimmer 4s infinite linear forwards;
+}
+
+.drop-zone.dragover {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.1);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.drop-zone, .style-select-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide scrollbar for lyrics feed but allow scroll */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

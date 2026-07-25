@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto pt-6 pb-20 animate-slide-up">
+    <!-- Unit Banner -->
+    <div class="p-6 mb-10 text-white relative overflow-hidden" 
+         style="background: #58CC02; border-radius: 24px; border-bottom: 6px solid #46A302; box-shadow: 0 8px 0 #E5E5E5;">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/20 text-white inline-block mb-2">
+                    SECTION 1 • {{ syllabus.subject_domain }}
+                </span>
+                <h1 class="text-3xl font-black font-heading tracking-tight mb-1">{{ syllabus.topic_title }}</h1>
+                <p class="text-white/90 text-sm font-bold flex items-center gap-3">
+                    <span>⚡ {{ total_xp }} Total XP</span>
+                    <span>•</span>
+                    <span>🎯 {{ progress.keys()|length }}/{{ syllabus.chapters|length }} Lessons Done</span>
+                </p>
+            </div>
+            <div class="hidden sm:block text-5xl">
+                🧠
+            </div>
+        </div>
+    </div>
+
+    <!-- Winding Learning Path -->
+    <div class="chapter-path my-8">
+        {% for chapter in syllabus.chapters %}
+            {% set c_id = chapter.id|string %}
+            {% set prev_id = (chapter.id|int - 1)|string %}
+            {% set is_unlocked = (loop.first or progress.get(prev_id, {}).get('completed')) %}
+            {% set is_completed = progress.get(c_id, {}).get('completed') %}
+
+            <!-- Node Container -->
+            <div class="chapter-path-node {% if is_completed %}completed{% elif is_unlocked %}current{% else %}locked{% endif %}"
+                 onclick="{% if is_unlocked %}startChapter({{ chapter.id }}){% else %}alert('Finish previous lessons to unlock this node! 🔒'){% endif %}"
+                 id="path-node-{{ chapter.id }}">
+
+                <!-- Circular Button Node -->
+                <div class="chapter-path-circle">
+                    {% if is_completed %}
+                        ⭐
+                    {% elif not is_unlocked %}
+                        🔒
+                    {% else %}
+                        📖
+                    {% endif %}
+                </div>
+
+                <!-- Info Box -->
+                <div class="chapter-path-info glass p-4" style="min-width: 220px; border-radius: 18px;">
+                    <div class="text-xs font-extrabold uppercase" style="color: #777777;">
+                        LESSON {{ chapter.id }}
+                    </div>
+                    <div class="chapter-path-title" style="color: #3C3C3C;">
+                        {{ chapter.title }}
+                    </div>
+                    {% if is_completed %}
+                        <div class="chapter-path-stars" style="color: #FFC800;">
+                            ⭐⭐⭐ <span class="text-xs font-bold" style="color: #58CC02;">({{ progress[c_id].quiz_score }}%)</span>
+                        </div>
+                    {% elif is_unlocked %}
+                        <div class="text-xs font-bold mt-1" style="color: #58CC02;">
+                            TAP TO START →
+                        </div>
+                    {% else %}
+                        <div class="text-xs font-bold mt-1" style="color: #AFB5C0;">
+                            LOCKED
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Path Connector Line -->
+            {% if not loop.last %}
+                <div class="chapter-path-connector {% if is_completed %}done{% endif %}"></div>
+            {% endif %}
+
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    async function startChapter(chapterId) {
+        const loader = document.getElementById('chapter-loader');
+        const progressBar = document.getElementById('generation-progress-bar');
+        const progressText = document.getElementById('generation-progress-text');
+        const statusMessage = document.getElementById('generation-status');
+        
+        loader.classList.remove('hidden');
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        statusMessage.textContent = 'Preparing your interactive lesson...';
+        
+        let simulatedProgress = 0;
+        const progressInterval = setInterval(() => {
+            if (simulatedProgress < 85) {
+                simulatedProgress += Math.random() * 25;
+                if (simulatedProgress > 85) simulatedProgress = 85;
+                progressBar.style.width = simulatedProgress + '%';
+                progressText.textContent = Math.round(simulatedProgress) + '%';
+            }
+        }, 250);
+        
+        try {
+            const response = await fetch(`/api/generate-chapter/${chapterId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressText.textContent = '100%';
+            
+            const result = await response.json();
+            if (result.status === 'success' || result.status === 'cached') {
+                window.location.href = `/learn/${chapterId}`;
+            } else {
+                alert(`Error: ${result.error || 'Failed to start lesson'}`);
+                loader.classList.add('hidden');
+            }
+        } catch (error) {
+            clearInterval(progressInterval);
+            alert('Error loading lesson: ' + error.message);
+            loader.classList.add('hidden');
+        }
+    }
+</script>
+
+<!-- Loading Overlay -->
+<div id="chapter-loader" class="fixed inset-0 bg-black/80 z-[1000] hidden flex flex-col items-center justify-center backdrop-blur-sm">
+    <div class="w-full max-w-sm px-8">
+        <div class="flex justify-center mb-8">
+            <div class="relative w-20 h-20">
+                <div class="absolute inset-0 rounded-full" style="border: 3px solid rgba(108,99,255,0.15);"></div>
+                <div class="absolute inset-0 rounded-full animate-spin" style="border: 3px solid transparent; border-top-color: #4ECDC4;"></div>
+                <div class="absolute inset-2 flex items-center justify-center text-2xl">📚</div>
+            </div>
+        </div>
+        
+        <p id="generation-status" class="text-lg font-bold text-white text-center mb-6">Initializing chapter generation...</p>
+        
+        <div class="w-full rounded-full overflow-hidden h-2 mb-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
+            <div id="generation-progress-bar" class="h-full transition-all duration-300" style="width: 0%; background: linear-gradient(90deg, #FF6B6B, #FFB347, #4ECDC4);"></div>
+        </div>
+        
+        <p id="generation-progress-text" class="text-center text-sm font-bold" style="color: #9B96B0;">0%</p>
+        
+        <div class="mt-6 space-y-2">
+            <div class="flex items-center gap-3 text-xs" style="color: #9B96B0;">
+                <div class="w-2 h-2 rounded-full" style="background: rgba(255,107,107,0.4);"></div>
+                <span>Analyzing source material</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs" style="color: #9B96B0;">
+                <div class="w-2 h-2 rounded-full" style="background: rgba(78,205,196,0.4);"></div>
+                <span>Personalizing content</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs" style="color: #9B96B0;">
+                <div class="w-2 h-2 rounded-full" style="background: rgba(255,179,71,0.4);"></div>
+                <span>Generating comprehensive lecture</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

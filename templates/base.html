@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroLearn AI — Interactive Learning Platform</title>
+    <meta name="description" content="Personalized, neuro-informed learning platform with gamified paths, interactive exercises, and AI study synthesis.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    
+    <!-- Design System Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: '#10B981',
+                        sky: '#0EA5E9',
+                        violet: '#8B5CF6',
+                        amber: '#F59E0B',
+                        rose: '#EC4899',
+                        slate: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Core Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    
+    <!-- Firebase Modular SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_82lrODFlAby8lfF2TXW45-9dGBt_ZUE",
+            authDomain: "neurolearn-d9491.firebaseapp.com",
+            projectId: "neurolearn-d9491",
+            storageBucket: "neurolearn-d9491.firebasestorage.app",
+            messagingSenderId: "188637252995",
+            appId: "1:188637252995:web:db3777a0322ed00fc13ab6",
+            measurementId: "G-2SWCNG7RWJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.firebaseApp = app;
+        window.firebaseAuth = getAuth(app);
+        window.firebaseDB = getFirestore(app);
+        window.firebaseAnalytics = getAnalytics(app);
+        window.fbSignOut = fbSignOut;
+
+        onAuthStateChanged(window.firebaseAuth, (user) => {
+            window.firebaseUser = user || null;
+            document.dispatchEvent(new CustomEvent('firebase-auth-ready', { detail: user }));
+        });
+    </script>
+
+    <!-- Accessibility Engine Init -->
+    <script>
+        window.NEURO_PROFILE = {{ session.get('learning_profile', {}) | tojson | safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/accessibility_engine.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.NEURO_PROFILE && Object.keys(window.NEURO_PROFILE).length > 0) {
+                const engine = new AccessibilityEngine(window.NEURO_PROFILE);
+                engine.init();
+            }
+        });
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
+
+    <!-- Primary Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-3 no-underline group" id="nav-logo">
+                <img src="{{ url_for('static', filename='favicon.svg') }}" alt="NeuroLearn Logo" class="w-10 h-10 rounded-xl shadow-md group-hover:scale-105 transition-transform">
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-slate-900 block leading-none">NeuroLearn</span>
+                    <span class="text-[10px] font-bold tracking-widest text-emerald-600 uppercase">Adaptive Platform</span>
+                </div>
+            </a>
+
+            <!-- Action Controls & Profile -->
+            <div class="flex items-center gap-4">
+                {% if session.get('user_id') or session.get('student_name') %}
+                    <!-- XP Badge -->
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-extrabold text-sm" id="xp-display">
+                        <span>⚡</span>
+                        <span id="xp-value">{{ session.get('total_xp', 0) }} XP</span>
+                    </div>
+
+                    <!-- Dashboard Link -->
+                    <a href="/dashboard" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-colors" id="nav-dashboard">
+                        <i class="fas fa-th-large text-slate-500"></i>
+                        <span class="hidden sm:inline">Dashboard</span>
+                    </a>
+
+                    {% if session.get('user_type') == 'parent' %}
+                        <a href="/parent-dashboard" class="px-3 py-2 text-sm font-bold text-slate-600 hover:text-slate-900" id="nav-parent-view">Parent View</a>
+                    {% endif %}
+
+                    <!-- Logout -->
+                    <a href="/logout" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 flex items-center justify-center transition-colors" title="Sign Out" id="nav-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                {% else %}
+                    <a href="/login" class="text-sm font-bold text-slate-600 hover:text-slate-900" id="nav-signin">Sign In</a>
+                    <a href="/signup" class="btn-primary text-xs py-2 px-4" id="nav-signup">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto px-4 py-6 max-w-6xl">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="p-4 mb-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-center font-bold animate-slide-up">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Help Popup -->
+    <div id="help-popup" class="fixed inset-0 z-[1001] hidden flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white p-8 max-w-md w-full text-center rounded-3xl shadow-2xl animate-pop border border-slate-200">
+            <div class="text-5xl mb-4">💡</div>
+            <h3 class="text-2xl font-black mb-3 text-slate-900">Need Guidance?</h3>
+            <p class="text-base text-slate-600 mb-6 font-semibold">Tap any level node or card to get started. Learning is self-paced and auto-saves your progress!</p>
+            <button onclick="document.getElementById('help-popup').classList.add('hidden')" class="btn-primary w-full py-4 text-base font-black">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Sound & Utility Helpers -->
+    <script>
+        window.playSound = function(type) {
+            if (localStorage.getItem('neurolearn_sounds') === 'off') return;
+            try {
+                const synth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.3 } }).toDestination();
+                if (type === 'correct') {
+                    synth.triggerAttackRelease('C5', '0.1');
+                    setTimeout(() => synth.triggerAttackRelease('E5', '0.1'), 100);
+                    setTimeout(() => synth.triggerAttackRelease('G5', '0.15'), 200);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease('E3', '0.2');
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease('A4', '0.05');
+                } else if (type === 'complete') {
+                    synth.triggerAttackRelease('C5', '0.1');
+                    setTimeout(() => synth.triggerAttackRelease('E5', '0.1'), 120);
+                    setTimeout(() => synth.triggerAttackRelease('G5', '0.1'), 240);
+                    setTimeout(() => synth.triggerAttackRelease('C6', '0.3'), 360);
+                }
+            } catch(e) { }
+        };
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

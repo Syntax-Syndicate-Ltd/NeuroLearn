@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block content %}
+{% set prog = progress or {} %}
+{% set syl = syllabus or {} %}
+{% set prof = profile or {} %}
+{% set chapters_list = syl.chapters if (syl and syl.chapters) else [] %}
+<div class="max-w-6xl mx-auto pt-8 animate-slide-up">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded" style="color: #FF6B6B; background: rgba(255,107,107,0.08);">Parental Oversight</span>
+            <h1 class="text-4xl font-bold font-heading mt-2 uppercase tracking-tighter">{{ student_name or 'Learner' }}'s Learning Report</h1>
+            <p class="text-sm italic" style="color: #9B96B0;">{{ syl.topic_title or 'Learning Module' }} — Overall Progress</p>
+        </div>
+        
+        <div class="flex gap-4">
+            <button onclick="window.print()" class="btn-secondary px-6 py-3 text-xs"><i class="fas fa-print mr-2"></i> Print Report</button>
+            <a href="/chapters" class="btn-primary px-8 py-3 text-xs">Return to Roadmap</a>
+        </div>
+    </div>
+
+    <!-- Summary Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        <div class="glass p-6 text-center" style="border-color: rgba(255,255,255,0.04);">
+            <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Chapters Complete</p>
+            <p class="text-3xl font-bold font-heading">{{ prog.keys()|length }} / {{ chapters_list|length }}</p>
+        </div>
+        <div class="glass p-6 text-center" style="border-color: rgba(255,255,255,0.04);">
+            <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Total XP Earned</p>
+            <p class="text-3xl font-bold font-heading" style="color: #FFB347;">⚡ {{ session.get('total_xp', 0) }}</p>
+        </div>
+        <div class="glass p-6 text-center" style="border-color: rgba(255,255,255,0.04);">
+            <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Avg. Accuracy</p>
+            <p class="text-3xl font-bold font-heading" style="color: #4ECDC4;">
+                {% set scores = prog.values()|map(attribute='quiz_score')|select('defined')|list %}
+                {{ ((scores|sum / (scores|length or 1))|round|int) if scores else 0 }}%
+            </p>
+        </div>
+        <div class="glass p-6 text-center" style="border-color: rgba(255,255,255,0.04);">
+            <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Confidence Level</p>
+            <p class="text-3xl font-bold font-heading" style="color: #6C63FF;">{{ (prof.confidence_level or 'Medium')|capitalize }}</p>
+        </div>
+    </div>
+
+    <!-- Emotional Health Analytics -->
+    <div class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded" style="color: #FF6B6B; background: rgba(255,107,107,0.06);">🧠 Emotional Health Monitor</span>
+        </div>
+        
+        <!-- Disorder Level Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass p-6 text-center relative overflow-hidden" style="border-color: rgba(46,213,115,0.15); background: rgba(46,213,115,0.03);">
+                <div class="absolute bottom-0 left-0 w-full h-1" style="background: rgba(255,255,255,0.04);">
+                    <div class="h-full transition-all duration-1000" style="width: {{ disorder_levels.engagement_score }}%; background: #2ED573;"></div>
+                </div>
+                <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Engagement</p>
+                <p class="text-3xl font-bold font-heading" style="color: #2ED573;">{{ disorder_levels.engagement_score }}%</p>
+                <p class="text-[9px] mt-1" style="color: #5E5877;">
+                    {% if disorder_levels.engagement_score >= 70 %}✓ Great focus{% elif disorder_levels.engagement_score >= 40 %}⚠️ Moderate{% else %}❗ Needs attention{% endif %}
+                </p>
+            </div>
+            
+            <div class="glass p-6 text-center relative overflow-hidden" style="border-color: rgba(78,205,196,0.15); background: rgba(78,205,196,0.03);">
+                <div class="absolute bottom-0 left-0 w-full h-1" style="background: rgba(255,255,255,0.04);">
+                    <div class="h-full transition-all duration-1000" style="width: {{ disorder_levels.attention_score }}%; background: #4ECDC4;"></div>
+                </div>
+                <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Attention</p>
+                <p class="text-3xl font-bold font-heading" style="color: #4ECDC4;">{{ disorder_levels.attention_score }}%</p>
+                <p class="text-[9px] mt-1" style="color: #5E5877;">
+                    {% if disorder_levels.attention_score >= 70 %}✓ Attentive{% elif disorder_levels.attention_score >= 40 %}⚠️ Distracted{% else %}❗ Very distracted{% endif %}
+                </p>
+            </div>
+            
+            <div class="glass p-6 text-center relative overflow-hidden" style="border-color: rgba(255,179,71,0.15); background: rgba(255,179,71,0.03);">
+                <div class="absolute bottom-0 left-0 w-full h-1" style="background: rgba(255,255,255,0.04);">
+                    <div class="h-full transition-all duration-1000" style="width: {{ disorder_levels.anxiety_level }}%; background: #FFB347;"></div>
+                </div>
+                <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Anxiety Level</p>
+                <p class="text-3xl font-bold font-heading" style="color: #FFB347;">{{ disorder_levels.anxiety_level }}%</p>
+                <p class="text-[9px] mt-1" style="color: #5E5877;">
+                    {% if disorder_levels.anxiety_level <= 20 %}✓ Low{% elif disorder_levels.anxiety_level <= 50 %}⚠️ Moderate{% else %}❗ High{% endif %}
+                </p>
+            </div>
+            
+            <div class="glass p-6 text-center relative overflow-hidden" style="border-color: rgba(255,71,87,0.15); background: rgba(255,71,87,0.03);">
+                <div class="absolute bottom-0 left-0 w-full h-1" style="background: rgba(255,255,255,0.04);">
+                    <div class="h-full transition-all duration-1000" style="width: {{ disorder_levels.stress_level }}%; background: #FF4757;"></div>
+                </div>
+                <p class="text-[10px] font-bold uppercase mb-2" style="color: #5E5877;">Stress Level</p>
+                <p class="text-3xl font-bold font-heading" style="color: #FF4757;">{{ disorder_levels.stress_level }}%</p>
+                <p class="text-[9px] mt-1" style="color: #5E5877;">
+                    {% if disorder_levels.stress_level <= 20 %}✓ Calm{% elif disorder_levels.stress_level <= 50 %}⚠️ Some stress{% else %}❗ High stress{% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Emotion Distribution & Timeline -->
+        <div class="grid lg:grid-cols-2 gap-8 mb-8">
+            <div class="glass p-8" style="border-color: rgba(255,255,255,0.04);">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-6" style="color: #6C63FF;"><i class="fas fa-chart-pie mr-2"></i>Emotion Distribution</h3>
+                
+                {% if emotion_data|length > 0 %}
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-8 text-center">🧠</span>
+                        <span class="text-xs font-bold w-20" style="color: #9B96B0;">Focused</span>
+                        <div class="flex-1 rounded-full h-4 overflow-hidden" style="background: rgba(255,255,255,0.04);">
+                            <div class="h-full rounded-full transition-all duration-1000" style="width: {{ emotion_percentages.focused }}%; background: linear-gradient(90deg, #2ED573, #1abc9c)"></div>
+                        </div>
+                        <span class="text-xs font-bold w-10 text-right" style="color: #2ED573;">{{ emotion_percentages.focused }}%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-8 text-center">😴</span>
+                        <span class="text-xs font-bold w-20" style="color: #9B96B0;">Bored</span>
+                        <div class="flex-1 rounded-full h-4 overflow-hidden" style="background: rgba(255,255,255,0.04);">
+                            <div class="h-full rounded-full transition-all duration-1000" style="width: {{ emotion_percentages.bored }}%; background: linear-gradient(90deg, #FFB347, #FF8E53)"></div>
+                        </div>
+                        <span class="text-xs font-bold w-10 text-right" style="color: #FFB347;">{{ emotion_percentages.bored }}%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-8 text-center">👀</span>
+                        <span class="text-xs font-bold w-20" style="color: #9B96B0;">Distracted</span>
+                        <div class="flex-1 rounded-full h-4 overflow-hidden" style="background: rgba(255,255,255,0.04);">
+                            <div class="h-full rounded-full transition-all duration-1000" style="width: {{ emotion_percentages.distracted }}%; background: linear-gradient(90deg, #FFB347, #e67e22)"></div>
+                        </div>
+                        <span class="text-xs font-bold w-10 text-right" style="color: #FFB347;">{{ emotion_percentages.distracted }}%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-8 text-center">😰</span>
+                        <span class="text-xs font-bold w-20" style="color: #9B96B0;">Stressed</span>
+                        <div class="flex-1 rounded-full h-4 overflow-hidden" style="background: rgba(255,255,255,0.04);">
+                            <div class="h-full rounded-full transition-all duration-1000" style="width: {{ emotion_percentages.stressed }}%; background: linear-gradient(90deg, #FF6B6B, #FF4757)"></div>
+                        </div>
+                        <span class="text-xs font-bold w-10 text-right" style="color: #FF6B6B;">{{ emotion_percentages.stressed }}%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg w-8 text-center">😟</span>
+                        <span class="text-xs font-bold w-20" style="color: #9B96B0;">Anxious</span>
+                        <div class="flex-1 rounded-full h-4 overflow-hidden" style="background: rgba(255,255,255,0.04);">
+                            <div class="h-full rounded-full transition-all duration-1000" style="width: {{ emotion_percentages.anxious }}%; background: linear-gradient(90deg, #FF4757, #c0392b)"></div>
+                        </div>
+                        <span class="text-xs font-bold w-10 text-right" style="color: #FF4757;">{{ emotion_percentages.anxious }}%</span>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4" style="border-top: 1px solid rgba(255,255,255,0.04);">
+                    <p class="text-[10px] text-center" style="color: #5E5877;">Based on {{ emotion_data|length }} readings during learning sessions</p>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-3xl mb-3">📷</p>
+                    <p class="text-sm mb-2" style="color: #9B96B0;">No emotion data yet</p>
+                    <p class="text-xs" style="color: #5E5877;">Data will appear once the student uses the webcam emotion monitor during learning.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Attention Flags -->
+            <div class="glass p-8" style="border-color: rgba(255,255,255,0.04);">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-6" style="color: #4ECDC4;"><i class="fas fa-flag mr-2"></i>Attention Flags</h3>
+                
+                {% if emotion_data|length > 0 %}
+                <div class="space-y-3">
+                    {% set flag_states = ['bored', 'distracted', 'stressed', 'anxious'] %}
+                    {% for entry in emotion_data %}
+                        {% if entry.emotion_state in flag_states %}
+                        <div class="flex items-center gap-3 p-3 rounded-xl transition-colors"
+                            style="{% if entry.emotion_state in ['stressed', 'anxious'] %}background: rgba(255,71,87,0.04); border: 1px solid rgba(255,71,87,0.12);{% else %}background: rgba(255,179,71,0.04); border: 1px solid rgba(255,179,71,0.12);{% endif %}">
+                            <span class="text-lg">
+                                {% if entry.emotion_state == 'bored' %}😴{% elif entry.emotion_state == 'distracted' %}👀{% elif entry.emotion_state == 'stressed' %}😰{% elif entry.emotion_state == 'anxious' %}😟{% endif %}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold capitalize" 
+                                   style="{% if entry.emotion_state in ['stressed', 'anxious'] %}color: #FF4757;{% else %}color: #FFB347;{% endif %}">
+                                    {{ entry.emotion_state }}
+                                    {% if entry.emotion_state in ['bored', 'distracted'] %}
+                                        — <span style="color: #5E5877; font-weight: 400;">Switched to Simple Mode</span>
+                                    {% elif entry.emotion_state in ['stressed', 'anxious'] %}
+                                        — <span style="color: #5E5877; font-weight: 400;">Switched to Story Mode</span>
+                                    {% endif %}
+                                </p>
+                                <p class="text-[10px]" style="color: #5E5877;">
+                                    {% if entry.chapter_id %}Chapter {{ entry.chapter_id }} · {% endif %}{{ entry.timestamp }}
+                                </p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  style="{% if entry.emotion_state in ['stressed', 'anxious'] %}background: rgba(255,71,87,0.08); color: #FF4757;{% else %}background: rgba(255,179,71,0.08); color: #FFB347;{% endif %}">
+                                FLAG
+                            </span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% set flag_count = emotion_data|selectattr('emotion_state', 'in', flag_states)|list|length %}
+                    {% if flag_count == 0 %}
+                    <div class="text-center py-8">
+                        <p class="text-3xl mb-3">✅</p>
+                        <p class="text-sm font-bold" style="color: #2ED573;">No flags raised!</p>
+                        <p class="text-xs" style="color: #5E5877;">The student maintained good focus throughout.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-3xl mb-3">🏳️</p>
+                    <p class="text-sm mb-2" style="color: #9B96B0;">No flags yet</p>
+                    <p class="text-xs" style="color: #5E5877;">Attention flags will appear when the emotion monitor detects boredom, distraction, or stress.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Breakdown -->
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="glass p-8" style="border-color: rgba(108,99,255,0.12); background: rgba(108,99,255,0.03);">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-6" style="color: #6C63FF;">Active Accommodations</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% if profile.has_adhd %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">ADHD Pacing</span>{% endif %}
+                    {% if profile.has_dyslexia %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Dyslexia Optimized</span>{% endif %}
+                    {% if profile.has_autism %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Literal Language</span>{% endif %}
+                    {% if profile.has_anxiety %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Anxiety Support</span>{% endif %}
+                    {% if profile.slow_processing %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Slow Processing Tone</span>{% endif %}
+                    {% if profile.working_memory %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Memory Scaffolding</span>{% endif %}
+                    {% if profile.sensory_sensitive %}<span class="px-3 py-1 rounded-full text-[10px] font-bold" style="background: rgba(108,99,255,0.08); color: #6C63FF; border: 1px solid rgba(108,99,255,0.15);">Sensory Calmed UI</span>{% endif %}
+                </div>
+                <p class="text-[10px] mt-6 italic" style="color: #5E5877;">These modifiers adjust AI narration, game logic, and UI stimuli in real-time.</p>
+            </div>
+
+            <div class="glass p-8" style="border-color: rgba(78,205,196,0.12); background: rgba(78,205,196,0.03);">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-4" style="color: #4ECDC4;">Instructor Reflections</h3>
+                <div class="space-y-4">
+                    <div class="pl-4 py-1" style="border-left: 2px solid rgba(78,205,196,0.25);">
+                        <p class="text-xs italic" style="color: #9B96B0;">
+                            {% if disorder_levels.engagement_score >= 70 %}
+                                "Student is showing excellent engagement. The adaptive learning system is working well. Consider increasing difficulty for the next topic."
+                            {% elif disorder_levels.attention_score < 50 %}
+                                "Attention levels are lower than expected. The system has been switching to Simple Mode frequently. Consider shorter, more interactive sessions."
+                            {% elif disorder_levels.anxiety_level > 40 %}
+                                "Some anxiety detected during sessions. Story Mode was activated to provide a calmer learning experience. Consider discussing any concerns with the student."
+                            {% else %}
+                                "Student is progressing at a healthy pace. The adaptive system has been adjusting content delivery based on real-time emotional feedback."
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="lg:col-span-2">
+            <div class="glass overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.04);">
+                        <tr>
+                            <th class="px-6 py-4 font-bold uppercase tracking-widest text-[10px]" style="color: #5E5877;">Chapter Module</th>
+                            <th class="px-6 py-4 font-bold uppercase tracking-widest text-[10px]" style="color: #5E5877;">Game Score</th>
+                            <th class="px-6 py-4 font-bold uppercase tracking-widest text-[10px]" style="color: #5E5877;">Quiz Accuracy</th>
+                            <th class="px-6 py-4 font-bold uppercase tracking-widest text-[10px]" style="color: #5E5877;">XP Earned</th>
+                        </tr>
+                    </thead>
+                    <tbody style="border-color: rgba(255,255,255,0.03);">
+                        {% for c_id, stats in prog.items() %}
+                            {% set ch = chapters_list|selectattr("id", "equalto", c_id|int)|first if chapters_list else None %}
+                            <tr class="hover:bg-white/[0.02] transition-colors" style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td class="px-6 py-5">
+                                    <p class="font-bold text-white">{{ ch.title if ch else ('Chapter ' ~ c_id) }}</p>
+                                    <p class="text-[10px]" style="color: #5E5877;">{{ (ch.difficulty if ch else 'Standard')|capitalize }} Module</p>
+                                </td>
+                                <td class="px-6 py-5">
+                                    <span class="text-xs font-bold">{{ stats.get('game_score', 'N/A') }}%</span>
+                                </td>
+                                <td class="px-6 py-5">
+                                    <span class="text-xs font-bold" style="{% if stats.quiz_score >= 70 %}color: #2ED573;{% elif stats.quiz_score >= 50 %}color: #FFB347;{% else %}color: #FF4757;{% endif %}">{{ stats.quiz_score }}%</span>
+                                </td>
+                                <td class="px-6 py-5 font-bold" style="color: #FFB347;">⚡ {{ stats.xp_earned }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

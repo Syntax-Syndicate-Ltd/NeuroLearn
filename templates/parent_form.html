@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="pf-wizard max-w-3xl mx-auto pt-6 animate-slide-up" role="form" aria-label="Learning Profile Wizard">
+    <!-- Live Region for Screen Readers -->
+    <div id="pf-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Progress Indicator -->
+    <div class="flex items-center justify-center gap-2 mb-10" role="navigation" aria-label="Form progress">
+        <div class="pf-step-dot active" id="pdot-1" aria-current="step"><span class="pf-dot-num">1</span><span class="pf-dot-label">Identity</span></div>
+        <div class="pf-step-line"></div>
+        <div class="pf-step-dot" id="pdot-2"><span class="pf-dot-num">2</span><span class="pf-dot-label">Attention</span></div>
+        <div class="pf-step-line"></div>
+        <div class="pf-step-dot" id="pdot-3"><span class="pf-dot-num">3</span><span class="pf-dot-label">Reading</span></div>
+        <div class="pf-step-line"></div>
+        <div class="pf-step-dot" id="pdot-4"><span class="pf-dot-num">4</span><span class="pf-dot-label">Wellbeing</span></div>
+    </div>
+
+    <form id="pf-form" action="/parent-form" method="POST" novalidate>
+        <!-- ===== STEP 1: IDENTITY ===== -->
+        <div class="pf-step" id="pf-step-1" data-step="1">
+            <div class="glass p-8 md:p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-32 bg-violet"></div>
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold font-heading mb-2">About Your Child</h2>
+                    <p class="text-secondary text-sm">Let's start with the basics. Your answers shape a completely personalized learning experience.</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="student_name" class="pf-label">Child's First Name <span class="text-rose" aria-hidden="true">*</span></label>
+                            <input type="text" id="student_name" name="student_name" required aria-required="true" minlength="2" class="pf-input" placeholder="e.g. Aarav" autocomplete="given-name">
+                            <p class="field-error hidden" id="err-name" role="alert">Name must be at least 2 characters.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="age_range" class="pf-label">Age Group <span class="text-rose" aria-hidden="true">*</span></label>
+                            <select id="age_range" name="age_range" required aria-required="true" class="pf-input">
+                                <option value="6-8">6 to 8 Years</option>
+                                <option value="9-12" selected>9 to 12 Years</option>
+                                <option value="13-15">13 to 15 Years</option>
+                                <option value="16-18">16 to 18 Years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="gender" class="pf-label">Preferred Narrator Voice</label>
+                            <select id="gender" name="gender" class="pf-input">
+                                <option value="female">Female voice</option>
+                                <option value="male">Male voice</option>
+                                <option value="no_preference">No preference</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="home_language" class="pf-label">Primary Language at Home</label>
+                            <select id="home_language" name="home_language" class="pf-input">
+                                <option value="en" selected>English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="mr">Marathi</option>
+                                <option value="ta">Tamil</option>
+                                <option value="te">Telugu</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end pt-8">
+                    <button type="button" class="btn-primary px-10 py-3" onclick="pfNext(2)">Next <i class="fas fa-chevron-right ml-2 text-xs" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 2: ATTENTION & LEARNING STYLE ===== -->
+        <div class="pf-step hidden" id="pf-step-2" data-step="2">
+            <div class="glass p-8 md:p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-32 bg-cyan"></div>
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold font-heading mb-2">Attention &amp; Learning Style</h2>
+                    <p class="text-secondary text-sm">Understanding how your child focuses helps us pace content perfectly.</p>
+                </div>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-bullseye mr-2" aria-hidden="true"></i>How does your child focus?</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-radio-card"><input type="radio" name="focus_type" value="typical" checked><span class="pf-radio-mark"></span><div><strong>🎯 Focuses well for long periods</strong></div></label>
+                        <label class="pf-radio-card"><input type="radio" name="focus_type" value="adhd_mild"><span class="pf-radio-mark"></span><div><strong>⚡ Short bursts, needs breaks every 5–10 min</strong></div></label>
+                        <label class="pf-radio-card"><input type="radio" name="focus_type" value="adhd_severe"><span class="pf-radio-mark"></span><div><strong>🌀 Very short attention, highly distractible</strong></div></label>
+                        <label class="pf-radio-card"><input type="radio" name="focus_type" value="adhd_hyperfocus"><span class="pf-radio-mark"></span><div><strong>🔬 Hyperfocuses on interests, struggles with other topics</strong></div></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-clock mr-2" aria-hidden="true"></i>Preferred learning session length</legend>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="pf-pill"><input type="radio" name="session_length" value="5"><span>5 min</span></label>
+                        <label class="pf-pill"><input type="radio" name="session_length" value="10" checked><span>10 min</span></label>
+                        <label class="pf-pill"><input type="radio" name="session_length" value="15"><span>15 min</span></label>
+                        <label class="pf-pill"><input type="radio" name="session_length" value="20"><span>20+ min</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-stethoscope mr-2" aria-hidden="true"></i>Formal ADHD diagnosis?</legend>
+                    <div class="flex gap-4">
+                        <label class="pf-pill"><input type="radio" name="adhd_diagnosis" value="yes"><span>Yes</span></label>
+                        <label class="pf-pill"><input type="radio" name="adhd_diagnosis" value="no" checked><span>No</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset">
+                    <legend class="pf-legend"><i class="fas fa-star mr-2" aria-hidden="true"></i>Special interest areas (select all that apply)</legend>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Space"><span>🚀 Space</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Animals"><span>🐾 Animals</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Sports"><span>⚽ Sports</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Art"><span>🎨 Art</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Music"><span>🎵 Music</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Technology"><span>💻 Technology</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="History"><span>📜 History</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Nature"><span>🌿 Nature</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Math"><span>🔢 Math</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="special_interests" value="Stories"><span>📚 Stories/Fiction</span></label>
+                    </div>
+                    <div class="mt-3">
+                        <label for="special_interest_other" class="pf-label text-xs">Other interest</label>
+                        <input type="text" id="special_interest_other" name="special_interest_other" class="pf-input mt-1" placeholder="e.g. Dinosaurs, Trains…" maxlength="50">
+                    </div>
+                </fieldset>
+
+                <div class="flex justify-between pt-8">
+                    <button type="button" class="btn-secondary px-8 py-3" onclick="pfNext(1)"><i class="fas fa-chevron-left mr-2 text-xs" aria-hidden="true"></i> Back</button>
+                    <button type="button" class="btn-primary px-10 py-3" onclick="pfNext(3)">Next <i class="fas fa-chevron-right ml-2 text-xs" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 3: READING, WRITING & PROCESSING ===== -->
+        <div class="pf-step hidden" id="pf-step-3" data-step="3">
+            <div class="glass p-8 md:p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-32 bg-amber"></div>
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold font-heading mb-2">Reading, Writing &amp; Processing</h2>
+                    <p class="text-secondary text-sm">Select anything that applies — leave unchecked if not relevant.</p>
+                </div>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-book-reader mr-2" aria-hidden="true"></i>Reading &amp; decoding</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dyslexia_decoding"><span>🔤 Letters or words appear jumbled/reversed</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dyslexia_tracking"><span>👁️ Reads slowly, loses place often</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="irlen_syndrome"><span>🌈 Benefits from coloured overlays or tinted screens</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dyslexia_spelling"><span>✏️ Difficulty with spelling despite knowing the word</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-pen-fancy mr-2" aria-hidden="true"></i>Writing difficulties</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dysgraphia_motor"><span>✍️ Struggles to form letters / fine motor challenges</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dysgraphia_organisation"><span>📝 Difficulty organising written thoughts</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dysgraphia_preference"><span>🎤 Strong preference for typing or speaking over handwriting</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-calculator mr-2" aria-hidden="true"></i>Math &amp; number processing</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dyscalculia_quantity"><span>🔢 Difficulty understanding numerical quantities</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="dyscalculia_sequence"><span>🔗 Struggles to sequence or order numbers/steps</span></label>
+                    </div>
+                </fieldset>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <fieldset class="pf-fieldset">
+                        <legend class="pf-legend"><i class="fas fa-tachometer-alt mr-2" aria-hidden="true"></i>Processing speed</legend>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="pf-pill"><input type="radio" name="processing_speed" value="typical" checked><span>Age-appropriate</span></label>
+                            <label class="pf-pill"><input type="radio" name="processing_speed" value="slight"><span>Slightly slow</span></label>
+                            <label class="pf-pill"><input type="radio" name="processing_speed" value="noticeable"><span>Noticeably slow</span></label>
+                            <label class="pf-pill"><input type="radio" name="processing_speed" value="very_slow"><span>Very slow</span></label>
+                        </div>
+                    </fieldset>
+                    <fieldset class="pf-fieldset">
+                        <legend class="pf-legend"><i class="fas fa-brain mr-2" aria-hidden="true"></i>Working memory</legend>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="pf-pill"><input type="radio" name="working_memory" value="typical" checked><span>Typical</span></label>
+                            <label class="pf-pill"><input type="radio" name="working_memory" value="some"><span>Some gaps</span></label>
+                            <label class="pf-pill"><input type="radio" name="working_memory" value="significant"><span>Significant gaps</span></label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <fieldset class="pf-fieldset">
+                    <legend class="pf-legend"><i class="fas fa-keyboard mr-2" aria-hidden="true"></i>Preferred input method</legend>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="pf-pill"><input type="radio" name="input_mode" value="voice"><span>🎤 Voice first</span></label>
+                        <label class="pf-pill"><input type="radio" name="input_mode" value="keyboard" checked><span>⌨️ Keyboard first</span></label>
+                        <label class="pf-pill"><input type="radio" name="input_mode" value="touch"><span>👆 Touch/tap first</span></label>
+                    </div>
+                </fieldset>
+
+                <div class="flex justify-between pt-8">
+                    <button type="button" class="btn-secondary px-8 py-3" onclick="pfNext(2)"><i class="fas fa-chevron-left mr-2 text-xs" aria-hidden="true"></i> Back</button>
+                    <button type="button" class="btn-primary px-10 py-3" onclick="pfNext(4)">Next <i class="fas fa-chevron-right ml-2 text-xs" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 4: SENSORY, SOCIAL & EMOTIONAL ===== -->
+        <div class="pf-step hidden" id="pf-step-4" data-step="4">
+            <div class="glass p-8 md:p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-32 bg-emerald"></div>
+                <div class="mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold font-heading mb-2">Sensory, Social &amp; Emotional</h2>
+                    <p class="text-secondary text-sm">This helps us create a safe, comfortable learning environment.</p>
+                </div>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-puzzle-piece mr-2" aria-hidden="true"></i>Autism / ASD traits</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="autism_literal"><span>💬 Prefers very literal, concrete language — no metaphors</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="autism_routine"><span>📋 Needs to know the full plan/structure before starting</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="autism_predictability"><span>🔒 Strongly prefers consistency — upset by UI changes</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="autism_special_interest"><span>⭐ Has specific topic interests that motivate learning</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="autism_sensory"><span>🔇 Sensory sensitivities (auditory/visual/tactile)</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-heart mr-2" aria-hidden="true"></i>Anxiety</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="anxiety_tests"><span>📝 Anxious about tests or being assessed</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="anxiety_overwhelm"><span>😵 Overwhelmed by too much information at once</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="anxiety_reassurance"><span>🤗 Needs frequent reassurance while learning</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="anxiety_avoidance"><span>🚫 Avoids tasks where they might fail</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="pf-fieldset mb-8">
+                    <legend class="pf-legend"><i class="fas fa-volume-down mr-2" aria-hidden="true"></i>Sensory sensitivities</legend>
+                    <div class="grid gap-3">
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="sensory_visual"><span>☀️ Sensitive to screen brightness or visual busyness</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="sensory_auditory"><span>🔊 Sensitive to sound volume or sudden sounds</span></label>
+                        <label class="pf-check-card"><input type="checkbox" name="needs" value="sensory_clutter"><span>🧹 Easily overwhelmed by busy/cluttered interfaces</span></label>
+                    </div>
+                </fieldset>
+
+                <div class="mb-8">
+                    <label for="confidence_level" class="pf-label mb-3 block">Confidence with new material</label>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs text-rose font-semibold whitespace-nowrap">Very low</span>
+                        <input type="range" id="confidence_level" name="confidence_level" min="1" max="5" value="3" class="pf-slider flex-1" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-valuetext="Medium">
+                        <span class="text-xs text-emerald font-semibold whitespace-nowrap">Very high</span>
+                    </div>
+                    <div class="flex justify-between mt-1 px-1">
+                        <span class="text-[10px] text-muted">1</span><span class="text-[10px] text-muted">2</span><span class="text-[10px] text-muted">3</span><span class="text-[10px] text-muted">4</span><span class="text-[10px] text-muted">5</span>
+                    </div>
+                    <p id="confidence-display" class="text-center text-xs text-secondary mt-1">Medium</p>
+                </div>
+
+                <div class="mb-6">
+                    <label for="parent_notes" class="pf-label mb-2 block">Additional notes for the AI tutor <span class="text-muted text-xs">(optional, 200 char max)</span></label>
+                    <textarea id="parent_notes" name="parent_notes" maxlength="200" rows="3" class="pf-input w-full" placeholder="e.g. Responds well to humor, needs extra time with new vocabulary…"></textarea>
+                    <p class="text-[10px] text-muted text-right mt-1"><span id="notes-count">0</span>/200</p>
+                </div>
+
+                <div class="flex flex-col items-center pt-6 gap-4">
+                    <div class="flex w-full justify-between">
+                        <button type="button" class="btn-secondary px-8 py-3" onclick="pfNext(3)"><i class="fas fa-chevron-left mr-2 text-xs" aria-hidden="true"></i> Back</button>
+                        <button type="submit" id="pf-submit" class="btn-primary px-10 py-4 text-lg relative">
+                            <span id="submit-text">Build <span id="submit-name">Your Child</span>'s Learning Profile →</span>
+                            <span id="submit-spinner" class="hidden"><i class="fas fa-circle-notch fa-spin mr-2" aria-hidden="true"></i> Building Profile…</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-muted text-center">All profiling is session-based and strictly private. No data is stored permanently.</p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+/* === PARENT FORM WIZARD STYLES === */
+.pf-step { animation: slide-in-up 0.4s ease forwards; }
+.pf-step.hidden { display: none; }
+
+/* Progress dots */
+.pf-step-dot { display:flex;flex-direction:column;align-items:center;gap:6px; }
+.pf-dot-num { width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--text-muted);transition:all 0.3s; }
+.pf-dot-label { font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);transition:color 0.3s; }
+.pf-step-dot.active .pf-dot-num { background:var(--violet);border-color:var(--violet);color:white;box-shadow:var(--shadow-violet); }
+.pf-step-dot.active .pf-dot-label { color:var(--violet); }
+.pf-step-dot.done .pf-dot-num { background:var(--emerald);border-color:var(--emerald);color:white; }
+.pf-step-dot.done .pf-dot-label { color:var(--emerald); }
+.pf-step-line { flex:1;max-width:60px;height:2px;background:rgba(255,255,255,0.1); }
+
+/* Inputs */
+.pf-label { font-size:0.85rem;font-weight:600;color:var(--text-secondary);display:block; }
+.pf-input { width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:12px 16px;border-radius:10px;color:var(--text-primary);font-size:0.9rem;outline:none;transition:border-color 0.2s;min-height:44px; }
+.pf-input:focus { border-color:var(--violet); }
+.pf-input::placeholder { color:var(--text-muted); }
+select.pf-input { cursor:pointer;appearance:auto; }
+
+/* Fieldset + Legend */
+.pf-fieldset { border:none;padding:0;margin:0; }
+.pf-legend { font-size:0.8rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;display:flex;align-items:center; }
+
+/* Radio Cards */
+.pf-radio-card { display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;transition:all 0.2s;min-height:52px; }
+.pf-radio-card:hover { background:rgba(255,255,255,0.06);border-color:rgba(6,182,212,0.3); }
+.pf-radio-card input { accent-color:var(--cyan);width:18px;height:18px;min-width:18px; }
+.pf-radio-card:has(input:checked) { background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.4); }
+.pf-radio-mark { display:none; }
+
+/* Checkbox Cards */
+.pf-check-card { display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;transition:all 0.2s;min-height:48px; }
+.pf-check-card:hover { background:rgba(255,255,255,0.06);border-color:rgba(124,58,237,0.3); }
+.pf-check-card input { accent-color:var(--violet);width:18px;height:18px;min-width:18px; }
+.pf-check-card:has(input:checked) { background:rgba(124,58,237,0.08);border-color:rgba(124,58,237,0.4); }
+.pf-check-card span { font-size:0.85rem;font-weight:500; }
+
+/* Pills */
+.pf-pill { cursor:pointer; }
+.pf-pill input { position:absolute;opacity:0;width:0;height:0; }
+.pf-pill span { display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:99px;font-size:0.8rem;font-weight:600;color:var(--text-secondary);transition:all 0.2s;min-height:44px;min-width:44px; }
+.pf-pill:hover span { background:rgba(255,255,255,0.08); }
+.pf-pill input:checked + span { background:rgba(124,58,237,0.15);border-color:var(--violet);color:white; }
+.pf-pill input:focus-visible + span { outline:3px solid #7c3aed;outline-offset:3px; }
+
+/* Slider */
+.pf-slider { -webkit-appearance:none;appearance:none;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;outline:none; }
+.pf-slider::-webkit-slider-thumb { -webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--violet);cursor:pointer;box-shadow:0 0 10px rgba(124,58,237,0.4); }
+.pf-slider:focus-visible { outline:3px solid #7c3aed;outline-offset:3px; }
+
+/* Errors */
+.field-error { font-size:0.75rem;color:var(--rose);margin-top:4px; }
+
+/* SR-only */
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .pf-step { animation: none; }
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+    let currentStep = 1;
+    const totalSteps = 4;
+    const confidenceLabels = {1:'Very low',2:'Low',3:'Medium',4:'High',5:'Very high'};
+
+    // Step navigation
+    window.pfNext = function(toStep) {
+        if (toStep > currentStep && !validateStep(currentStep)) return;
+        const curEl = document.getElementById('pf-step-' + currentStep);
+        const nextEl = document.getElementById('pf-step-' + toStep);
+        if (!curEl || !nextEl) return;
+        curEl.classList.add('hidden');
+        nextEl.classList.remove('hidden');
+        currentStep = toStep;
+        updateDots();
+        window.scrollTo({top:0,behavior:'smooth'});
+        announce('Step ' + toStep + ' of ' + totalSteps + ': ' + nextEl.querySelector('h2').textContent);
+    };
+
+    function validateStep(step) {
+        if (step === 1) {
+            const nameInput = document.getElementById('student_name');
+            const errEl = document.getElementById('err-name');
+            if (!nameInput.value.trim() || nameInput.value.trim().length < 2) {
+                nameInput.classList.add('border-rose');
+                nameInput.setAttribute('aria-invalid','true');
+                nameInput.setAttribute('aria-describedby','err-name');
+                errEl.classList.remove('hidden');
+                nameInput.focus();
+                return false;
+            } else {
+                nameInput.classList.remove('border-rose');
+                nameInput.removeAttribute('aria-invalid');
+                errEl.classList.add('hidden');
+            }
+        }
+        return true;
+    }
+
+    function updateDots() {
+        for (let i = 1; i <= totalSteps; i++) {
+            const dot = document.getElementById('pdot-' + i);
+            dot.classList.remove('active','done');
+            dot.removeAttribute('aria-current');
+            if (i < currentStep) dot.classList.add('done');
+            else if (i === currentStep) { dot.classList.add('active'); dot.setAttribute('aria-current','step'); }
+        }
+    }
+
+    function announce(msg) {
+        const live = document.getElementById('pf-live');
+        if (live) { live.textContent = ''; setTimeout(() => { live.textContent = msg; }, 100); }
+    }
+
+    // Confidence slider
+    const slider = document.getElementById('confidence_level');
+    const confDisplay = document.getElementById('confidence-display');
+    if (slider) {
+        slider.addEventListener('input', function() {
+            const label = confidenceLabels[this.value] || 'Medium';
+            confDisplay.textContent = label;
+            this.setAttribute('aria-valuenow', this.value);
+            this.setAttribute('aria-valuetext', label);
+        });
+    }
+
+    // Parent notes counter
+    const notesArea = document.getElementById('parent_notes');
+    const notesCount = document.getElementById('notes-count');
+    if (notesArea) {
+        notesArea.addEventListener('input', function() {
+            notesCount.textContent = this.value.length;
+        });
+    }
+
+    // Live name update on submit button
+    const nameInput = document.getElementById('student_name');
+    const submitName = document.getElementById('submit-name');
+    if (nameInput && submitName) {
+        nameInput.addEventListener('input', function() {
+            submitName.textContent = this.value.trim() || 'Your Child';
+        });
+    }
+
+    // Form submission with spinner
+    const form = document.getElementById('pf-form');
+    form.addEventListener('submit', function(e) {
+        if (!validateStep(currentStep)) { e.preventDefault(); return; }
+        document.getElementById('submit-text').classList.add('hidden');
+        document.getElementById('submit-spinner').classList.remove('hidden');
+        document.getElementById('pf-submit').disabled = true;
+    });
+})();
+</script>
+{% endblock %}

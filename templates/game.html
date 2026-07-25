@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto pt-4 pb-8 animate-slide-up">
+    <!-- Game HUD Bar -->
+    <div class="flex items-center gap-4 mb-4">
+        <a href="/chapters" class="text-2xl font-black text-gray-400 hover:text-gray-600 transition-colors px-2" title="Quit Game">✕</a>
+        <div class="flex-1">
+            <div class="progress-segmented" id="duo-progress-segmented"></div>
+        </div>
+        <div class="streak-counter" id="duo-streak-counter">
+            <span class="streak-fire">🔥</span>
+            <span id="streak-val">0</span>
+        </div>
+        <div class="hearts-bar" id="duo-hearts-bar"></div>
+    </div>
+
+    <!-- Game Canvas Container -->
+    <div id="game-canvas-wrap" style="position:relative; border-radius:24px; overflow:hidden; background:#0F172A; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 3px solid #334155;">
+        <canvas id="arcade-canvas" style="display:block; width:100%; border-radius:21px;"></canvas>
+        
+        <!-- Score HUD overlay -->
+        <div id="canvas-hud" style="position:absolute; top:16px; left:20px; right:20px; display:flex; justify-content:space-between; pointer-events:none; z-index:10;">
+            <div style="background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); padding:8px 16px; border-radius:12px; color:#FFC800; font-weight:900; font-size:14px;">
+                SCORE: <span id="hud-score">0</span>
+            </div>
+            <div id="hud-combo" style="background:rgba(99,102,241,0.7); backdrop-filter:blur(8px); padding:8px 16px; border-radius:12px; color:white; font-weight:900; font-size:14px; opacity:0; transition:opacity 0.3s;">
+                COMBO x<span id="hud-combo-val">2</span>
+            </div>
+        </div>
+
+        <!-- Game Complete Overlay -->
+        <div id="game-overlay" class="hidden" style="position:absolute; inset:0; z-index:100; background:rgba(255,255,255,0.97); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px; opacity:0; transition:opacity 0.5s;">
+            <div style="font-size:80px; margin-bottom:16px;" class="animate-pop">🏆</div>
+            <h2 style="font-size:32px; font-weight:900; color:#0F172A; margin-bottom:8px; font-family:var(--font-heading);">STAGE COMPLETE!</h2>
+            <p style="font-size:18px; font-weight:700; color:#64748B; margin-bottom:24px;">You earned <span style="color:#FFC800; font-weight:900;">{{ chapter.xp_reward }} XP</span></p>
+            <a href="/results/{{ chapter.chapter_id }}" class="btn-primary btn-big">SEE RESULTS →</a>
+        </div>
+    </div>
+
+    <!-- Game instruction text below canvas -->
+    <p id="game-instruction-text" style="text-align:center; margin-top:12px; font-size:14px; font-weight:700; color:#94A3B8;"></p>
+</div>
+
+<script>
+    window.chapterId = "{{ chapter.chapter_id }}";
+    window.gameData = {{ chapter.game_items|tojson }};
+    window.gameType = "{{ chapter.game_type }}";
+    window.xpReward = {{ chapter.xp_reward }};
+    window.gameTitle = {{ chapter.game_title|tojson }};
+    window.categoryLeft = {{ (chapter.category_left or 'Category A')|tojson }};
+    window.categoryRight = {{ (chapter.category_right or 'Category B')|tojson }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/game_engine.js') }}"></script>
+{% endblock %}
