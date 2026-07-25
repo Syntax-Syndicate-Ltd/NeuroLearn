@@ -565,40 +565,50 @@ def dashboard():
 @app.route("/api/continue-topic/<topic_id>", methods=["POST"])
 @login_required
 def continue_topic(topic_id):
-    user_id = session["user_id"]
-    doc = db.collection('user_topics').document(str(topic_id)).get()
-    if not doc.exists:
-        return jsonify({"error": "Topic not found"}), 404
+    try:
+        user_id = session["user_id"]
+        doc = db.collection('user_topics').document(str(topic_id)).get()
+        if not doc.exists:
+            return jsonify({"error": "Topic not found"}), 404
 
-    topic = doc.to_dict()
-    if topic.get("user_id") != user_id:
-        return jsonify({"error": "Unauthorized"}), 403
+        topic = doc.to_dict()
+        allowed_ids = [user_id]
+        if session.get("guest_id"):
+            allowed_ids.append(session.get("guest_id"))
+            
+        if topic.get("user_id") not in allowed_ids:
+            return jsonify({"error": "Unauthorized"}), 403
 
-    _clear_old_chapters()
+        _clear_old_chapters()
 
-    syllabus = json.loads(topic.get("syllabus_json") or "{}")
-    session["raw_content"] = topic.get("raw_content") or ""
-    session["ai_data"] = {
-        "syllabus": syllabus,
-        "chapters_generated": json.loads(topic.get("chapters_generated_json") or "{}")
-    }
-    session["chapter_progress"] = json.loads(topic.get("chapter_progress_json") or "{}")
-    session["total_xp"] = topic.get("total_xp", 0) or 0
-    session["learning_profile"] = json.loads(topic.get("learning_profile_json") or "{}")
-    session["cognitive_style"] = topic.get("cognitive_style") or "focus"
-    session["gender"] = topic.get("gender") or "female"
-    session["emotion"] = topic.get("emotion") or "okay"
-    session["student_name"] = session.get("display_name", "Learner")
-    session["active_topic_id"] = str(doc.id)
-    session["user_type"] = "child"
-    session.modified = True
+        syllabus = json.loads(topic.get("syllabus_json") or "{}")
+        session["raw_content"] = topic.get("raw_content") or ""
+        session["ai_data"] = {
+            "syllabus": syllabus,
+            "chapters_generated": json.loads(topic.get("chapters_generated_json") or "{}")
+        }
+        session["chapter_progress"] = json.loads(topic.get("chapter_progress_json") or "{}")
+        session["total_xp"] = topic.get("total_xp", 0) or 0
+        session["learning_profile"] = json.loads(topic.get("learning_profile_json") or "{}")
+        session["cognitive_style"] = topic.get("cognitive_style") or "focus"
+        session["gender"] = topic.get("gender") or "female"
+        session["emotion"] = topic.get("emotion") or "okay"
+        session["student_name"] = session.get("display_name", "Learner")
+        session["active_topic_id"] = str(doc.id)
+        session["user_type"] = "child"
+        session.modified = True
 
-    db.collection('user_topics').document(str(topic_id)).update({
-        'last_accessed': firestore.SERVER_TIMESTAMP
-    })
+        db.collection('user_topics').document(str(topic_id)).update({
+            'last_accessed': firestore.SERVER_TIMESTAMP
+        })
 
-    print(f"🔥 [CONTINUE-TOPIC] Restored topic {topic_id} from Firestore")
-    return jsonify({"redirect": url_for("chapters")})
+        print(f"🔥 [CONTINUE-TOPIC] Restored topic {topic_id} from Firestore")
+        return jsonify({"redirect": url_for("chapters")})
+    except Exception as e:
+        import traceback
+        with open("continue_error_log.txt", "w", encoding="utf-8") as f:
+            f.write(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/delete-topic/<topic_id>", methods=["POST"])
 @login_required
@@ -606,7 +616,11 @@ def delete_topic(topic_id):
     user_id = session["user_id"]
     doc_ref = db.collection('user_topics').document(str(topic_id))
     doc = doc_ref.get()
-    if doc.exists and doc.to_dict().get("user_id") == user_id:
+    allowed_ids = [user_id]
+    if session.get("guest_id"):
+        allowed_ids.append(session.get("guest_id"))
+        
+    if doc.exists and doc.to_dict().get("user_id") in allowed_ids:
         doc_ref.delete()
     return jsonify({"status": "deleted"})
 

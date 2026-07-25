@@ -61,7 +61,7 @@
                     style="{% if 'math' in topic.subject_domain|lower %}color: #FFB347; background: rgba(255,179,71,0.1);{% elif 'science' in topic.subject_domain|lower or 'bio' in topic.subject_domain|lower %}color: #2ED573; background: rgba(46,213,115,0.1);{% elif 'history' in topic.subject_domain|lower or 'social' in topic.subject_domain|lower %}color: #FF6B6B; background: rgba(255,107,107,0.1);{% else %}color: #4ECDC4; background: rgba(78,205,196,0.1);{% endif %}">
                     {{ topic.subject_domain }}
                 </span>
-                <button onclick="deleteTopic({{ topic.id }})" class="text-white/20 hover:text-rose transition-colors p-1" title="Delete topic">
+                <button onclick="deleteTopic('{{ topic.id }}')" class="text-white/20 hover:text-rose transition-colors p-1" title="Delete topic">
                     <i class="fas fa-trash-alt text-xs"></i>
                 </button>
             </div>
@@ -93,7 +93,7 @@
                 </span>
             </div>
 
-            <button onclick="continueTopic({{ topic.id }})" class="w-full py-3 text-sm font-bold rounded-xl transition-all duration-300"
+            <button onclick="continueTopic('{{ topic.id }}')" class="w-full py-3 text-sm font-bold rounded-xl transition-all duration-300"
                     style="{% if topic.progress_pct == 100 %}background: rgba(46,213,115,0.08); border: 1px solid rgba(46,213,115,0.2); color: #2ED573;{% else %}background: linear-gradient(135deg, #FF6B6B, #FF8E53); border: 1px solid rgba(255,107,107,0.3); color: white;{% endif %}"
                     id="continue-btn-{{ topic.id }}">
                 {% if topic.progress_pct == 100 %}

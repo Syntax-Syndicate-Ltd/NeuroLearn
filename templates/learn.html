@@ -70,11 +70,12 @@
                 <audio id="audio-element" style="display:none;" preload="auto" crossorigin="anonymous"></audio>
                 
                 <!-- Key Concepts -->
-                <div class="learn-concepts-section">
+                <div class="learn-concepts-section" onclick="expandViz()" title="Click to expand">
                     <div class="learn-concepts-header">
                         <span class="learn-concepts-label"><i class="fas fa-tags mr-2"></i> Key Concepts</span>
+                        <i class="fas fa-expand text-xs text-indigo-400"></i>
                     </div>
-                    <div id="mermaid-container" class="learn-concepts-container"></div>
+                    <div id="mermaid-container" class="learn-concepts-container cursor-pointer"></div>
                 </div>
             </div>
             
@@ -305,7 +306,7 @@
     
     .learn-audio-header {
         text-align: center;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.25rem;
     }
     
     .learn-chapter-title {
@@ -326,14 +327,16 @@
     .learn-canvas {
         width: 100%;
         height: 80px;
-        flex-shrink: 0;
+        max-height: 80px;
+        min-height: 30px;
+        flex-shrink: 1;
         border-radius: 10px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
     
     .learn-time-row {
         text-align: center;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.25rem;
     }
     
     .learn-time-text {
@@ -348,7 +351,7 @@
         align-items: center;
         justify-content: center;
         gap: 1.25rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
         flex-shrink: 0;
     }
     
@@ -393,11 +396,13 @@
     .learn-concepts-section {
         flex: 1;
         min-height: 60px;
+        max-height: 120px;
         display: flex;
         flex-direction: column;
         border-top: 1px solid var(--border-glass);
-        padding-top: 0.75rem;
+        padding-top: 0.5rem;
         overflow: hidden;
+        cursor: zoom-in;
     }
     
     .learn-concepts-header {
@@ -665,8 +670,35 @@
         if (banner) banner.classList.add('hidden');
     }
     
-    // Stub expandViz for compatibility (mindmap removed)  
-    function expandViz() {}
+    function expandViz() {
+        const modal = document.getElementById('viz-modal');
+        const container = document.getElementById('modal-container');
+        const source = document.getElementById('mermaid-container');
+        
+        if (modal.classList.contains('hidden')) {
+            // Open modal
+            if (source && source.innerHTML) {
+                container.innerHTML = source.innerHTML;
+                // Make the SVG fill the modal
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    svg.style.width = '100%';
+                    svg.style.height = '100%';
+                    svg.style.maxWidth = '90vw';
+                    svg.style.maxHeight = '90vh';
+                }
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
+        } else {
+            // Close modal
+            modal.classList.add('opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                container.innerHTML = '';
+            }, 300);
+        }
+    }
 </script>
 {% endblock %}
 

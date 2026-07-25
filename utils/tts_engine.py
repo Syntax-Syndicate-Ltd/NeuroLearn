@@ -85,16 +85,51 @@ def generate_chapter_audio_stream(text, voice_id="standard_female", rate="+0%", 
                         q.put(chunk["data"])
             except Exception as e:
                 print(f"✗ [TTS-STREAM] Async Error: {str(e)}")
-                # Try fallback
+                # Try fallback to Edge default
+                edge_failed = True
                 if voice != "en-US-AriaNeural":
                     try:
-                        print(f"🔄 [TTS-STREAM] Retrying with Fallback...")
+                        print(f"🔄 [TTS-STREAM] Retrying with Edge Fallback...")
                         communicate = edge_tts.Communicate(text, "en-US-AriaNeural", rate=rate, pitch=pitch)
                         async for chunk in communicate.stream():
                             if chunk["type"] == "audio":
                                 q.put(chunk["data"])
+                                edge_failed = False
                     except Exception as e2:
-                        print(f"✗ [TTS-STREAM] Fallback failed: {str(e2)}")
+                        print(f"✗ [TTS-STREAM] Edge Fallback failed: {str(e2)}")
+                
+                if edge_failed:
+                    print("🔄 [TTS-STREAM] Falling back to reliable Google TTS API...")
+                    import requests
+                    import urllib.parse
+                    try:
+                        # Split text into manageable chunks for Google TTS (max 200 chars)
+                        words = text.split()
+                        chunks = []
+                        curr = ""
+                        for w in words:
+                            if len(curr) + len(w) < 180:
+                                curr += w + " "
+                            else:
+                                chunks.append(curr.strip())
+                                curr = w + " "
+                        if curr: chunks.append(curr.strip())
+                        
+                        lang = "en"
+                        if "hi-IN" in voice: lang = "hi"
+                        elif "mr-IN" in voice: lang = "mr"
+                        elif "ta-IN" in voice: lang = "ta"
+                        elif "te-IN" in voice: lang = "te"
+
+                        for c in chunks:
+                            enc_text = urllib.parse.quote(c)
+                            url = f"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl={lang}&q={enc_text}"
+                            r = requests.get(url, stream=True, timeout=10)
+                            if r.status_code == 200:
+                                for chunk in r.iter_content(chunk_size=4096):
+                                    if chunk: q.put(chunk)
+                    except Exception as e3:
+                        print(f"✗ [TTS-STREAM] Google TTS Fallback failed: {str(e3)}")
             finally:
                 q.put(None) # Signal EOF
                 
