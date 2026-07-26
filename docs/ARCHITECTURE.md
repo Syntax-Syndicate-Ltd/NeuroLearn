@@ -71,6 +71,70 @@ NeuroLearn AI follows a **monolithic Flask architecture** with a layered separat
 
 ---
 
+## 📂 Directory Structure
+
+```text
+NeuroLearn/
+├── app.py                          # Main Flask application & routes
+├── requirements.txt                # Python dependencies
+├── .env.example                    # Template for environment variables
+├── .gitignore                      # Git ignore rules
+│
+├── docs/                           # Project Documentation
+│   ├── API.md                      # Complete endpoint reference
+│   ├── ARCHITECTURE.md             # System design and data models (this file)
+│   ├── DEPLOYMENT.md               # Production deployment guides
+│   └── ENVIRONMENT.md              # Env variables and Firebase setup
+│
+├── utils/                          # Backend Modules
+│   ├── ai_processor.py             # LLM orchestration, prompts, cognitive adaptations
+│   ├── tts_engine.py               # Edge TTS streaming & voice mapping
+│   └── story_generator.py          # Manga story & Simple mode generation
+│
+├── static/                         # Frontend Assets
+│   ├── favicon.svg                 # SVG favicon
+│   ├── favicon.png                 # PNG favicon
+│   ├── css/                        # Stylesheets
+│   │   ├── styles.css              # Main glassmorphism styles
+│   │   └── style.css               # Supplementary styles
+│   └── js/                         # Vanilla JS Modules
+│       ├── main.js                 # Landing page & file upload
+│       ├── engine.js               # Shared UI engine
+│       ├── learn.js                # Narration & TTS controls
+│       ├── game_engine.js          # HTML5 Canvas arcade engine (60fps)
+│       ├── quiz.js                 # Quiz rendering & XP calculation
+│       ├── emotion_detector.js     # face-api.js webcam integration
+│       ├── story_mode.js           # Manga panel display
+│       ├── simple_mode.js          # Simplified content cards
+│       ├── accessibility_engine.js # Font scaling & contrast
+│       ├── dna_card.js             # Progress DNA component
+│       ├── results.js              # Chapter completion view
+│       └── socratic_tutor.js       # Socratic AI Tutor UI
+│
+├── templates/                      # Jinja2 HTML Views
+│   ├── base.html                   # Base layout & global scripts
+│   ├── index.html                  # Landing page
+│   ├── signup.html                 # Registration
+│   ├── login.html                  # Login
+│   ├── onboarding.html             # Profile creation
+│   ├── parent_form.html            # 20+ field cognitive assessment
+│   ├── loading.html                # Pipeline loading animation
+│   ├── chapters.html               # Level map
+│   ├── learn.html                  # Narration view
+│   ├── game.html                   # Arcade container
+│   ├── quiz.html                   # Quiz view
+│   ├── results.html                # XP & Badge summary
+│   ├── dashboard.html              # Student dashboard
+│   └── parent_dashboard.html       # Parent analytics
+│
+└── cpp_games/                      # Experimental C++ arcade module
+    └── neuro_arcade_engine.cpp     
+```
+
+<br />
+
+---
+
 ## 🧩 Component Breakdown
 
 ### 1. Flask Application — `app.py`

@@ -4,6 +4,11 @@
 *.env
 !.env.example
 
+# Firebase Service Account (NEVER commit these)
+*serviceAccount*.json
+*service-account*.json
+firebase-adminsdk*.json
+
 # Python Cache
 __pycache__/
 *.pyc
@@ -24,3 +29,15 @@ flask_session/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Virtual environment
+venv/
+node_modules/
+
+# Generated audio cache
+static/audio/
+*.mp3
+
+# IDE
+.vscode/
+.idea/

@@ -105,62 +105,61 @@
 
         <!-- Guest Mode Section -->
         <div id="guest-section" class="mb-8">
-            <button onclick="startGuestMode()" class="glass px-8 py-4 text-sm text-[#9B96B0] hover:text-white hover:border-white/20 transition-all group" id="guest-btn">
-                <i class="fas fa-user-secret mr-2 text-white/30 group-hover:text-white/60"></i>
+            <button onclick="startGuestMode()" class="btn-secondary py-4 px-8 text-base font-extrabold transition-all group hover:scale-[1.02]" id="guest-btn" style="border-radius: 20px; color: #1E293B;">
+                <i class="fas fa-user-secret mr-2 text-sky-500"></i>
                 Continue as Guest 
-                <span class="text-[10px] ml-2" style="color: #5E5877;">(Progress won't be saved)</span>
+                <span class="text-xs ml-2 font-bold" style="color: #64748B;">(Progress won't be saved)</span>
             </button>
         </div>
 
         <!-- Guest Upload Zone -->
         <div id="guest-upload-section" class="hidden opacity-0 translate-y-8 transition-all duration-700">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-lg mx-auto">
-                <button onclick="selectGuestType('child')" class="guest-type-btn glass p-4 text-center transition-all text-sm" id="guest-type-child">
-                    <i class="fas fa-graduation-cap mr-1"></i> I'm a Student
+                <button onclick="selectGuestType('child')" class="guest-type-btn glass p-4 text-center transition-all text-base font-extrabold text-slate-700 hover:text-slate-900" id="guest-type-child">
+                    <i class="fas fa-graduation-cap mr-2 text-sky-500"></i> I'm a Student
                 </button>
-                <button onclick="selectGuestType('parent')" class="guest-type-btn glass p-4 text-center transition-all text-sm" id="guest-type-parent">
-                    <i class="fas fa-users mr-1"></i> I'm a Parent
+                <button onclick="selectGuestType('parent')" class="guest-type-btn glass p-4 text-center transition-all text-base font-extrabold text-slate-700 hover:text-slate-900" id="guest-type-parent">
+                    <i class="fas fa-users mr-2 text-amber-500"></i> I'm a Parent
                 </button>
             </div>
 
-            <div class="glass p-5 sm:p-10 md:p-12 upload-zone relative overflow-hidden w-full box-border" id="drop-zone">
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent shimmer-overlay pointer-events-none"></div>
+            <div class="glass p-5 sm:p-10 md:p-12 upload-zone relative overflow-hidden w-full box-border" id="drop-zone" style="border: 3px dashed #0EA5E9; background: #F0F9FF; border-radius: 28px;">
                 
                 <div id="upload-idle">
-                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center"
-                         style="background: linear-gradient(135deg, rgba(255,179,71,0.1), rgba(255,107,107,0.1)); border: 1px solid rgba(255,179,71,0.15);">
-                        <i class="fas fa-cloud-upload-alt text-3xl" style="color: #FFB347;"></i>
+                    <div class="w-20 h-20 mx-auto mb-5 rounded-3xl flex items-center justify-center animate-bounce"
+                         style="background: #0EA5E9; box-shadow: 0 8px 0 #0284C7;">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-white"></i>
                     </div>
-                    <h3 class="text-2xl font-bold font-heading mb-2">Upload Your Source Material</h3>
-                    <p class="text-[#9B96B0] mb-8 text-sm">Drop your PDF or Textbook snippet here (.pdf, .txt)</p>
-                    <div class="flex items-center justify-center gap-4 flex-wrap">
-                        <label class="btn-primary cursor-pointer">
-                            <i class="fas fa-file-pdf mr-2"></i> Select File
+                    <h3 class="text-3xl font-black font-heading mb-2" style="color: #1E293B;">Drop Your Lesson File Here</h3>
+                    <p class="mb-8 text-base font-bold" style="color: #64748B;">PDF or textbook notes (.pdf, .txt)</p>
+                    <div class="flex items-center justify-center gap-5 flex-wrap">
+                        <label class="btn-primary btn-big cursor-pointer">
+                            <i class="fas fa-file-pdf mr-2"></i> SELECT FILE
                             <input type="file" id="file-input" class="hidden" accept=".pdf,.txt">
                         </label>
-                        <span class="text-[#5E5877] text-sm font-semibold">OR</span>
-                        <button onclick="togglePaste()" class="btn-secondary">
-                            <i class="fas fa-keyboard mr-2"></i> Paste Text
+                        <span class="text-base font-black" style="color: #94A3B8;">OR</span>
+                        <button onclick="togglePaste()" class="btn-secondary btn-big">
+                            <i class="fas fa-keyboard mr-2"></i> PASTE TEXT
                         </button>
                     </div>
                 </div>
 
                 <div id="upload-success" class="hidden">
-                    <div class="text-5xl mb-4" style="color: #2ED573;"><i class="fas fa-check-circle"></i></div>
-                    <h3 id="filename-display" class="text-xl font-bold mb-2">filename.pdf</h3>
-                    <p id="word-count-display" class="text-[#9B96B0] mb-6 italic text-sm">~1,250 words detected</p>
-                    <button onclick="submitUpload()" class="btn-primary px-12 py-4 text-xl">
-                        Begin Your Journey →
+                    <div class="text-6xl mb-4" style="color: #10B981;"><i class="fas fa-check-circle animate-pop"></i></div>
+                    <h3 id="filename-display" class="text-2xl font-black mb-2" style="color: #1E293B;">filename.pdf</h3>
+                    <p id="word-count-display" class="mb-6 italic text-base font-bold" style="color: #64748B;">~1,250 words detected</p>
+                    <button onclick="submitUpload()" class="btn-primary btn-big px-12 py-5 text-xl">
+                        START LEVEL PATH →
                     </button>
                 </div>
 
                 <div id="paste-input-section" class="hidden mt-8 w-full">
-                    <textarea id="text-input" class="w-full h-48 p-4 rounded-xl outline-none mb-4 text-white placeholder-white/30 resize-none box-border"
-                              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);"
-                              placeholder="Paste your educational content here..."></textarea>
-                    <div class="flex justify-between">
-                        <button onclick="togglePaste()" class="text-[#5E5877] text-sm hover:text-white transition-colors">← Upload File instead</button>
-                        <button onclick="submitText()" class="btn-primary">Analyze Text →</button>
+                    <textarea id="text-input" class="w-full h-48 p-5 rounded-2xl outline-none mb-4 font-semibold text-lg resize-none box-border text-slate-800 placeholder-slate-400"
+                              style="background: #FFFFFF; border: 2px solid #E2E8F0; color: #1E293B;"
+                              placeholder="Paste your educational text or chapter here..."></textarea>
+                    <div class="flex justify-between items-center">
+                        <button onclick="togglePaste()" class="font-bold text-sm" style="color: #64748B;">← Upload File instead</button>
+                        <button onclick="submitText()" class="btn-primary">ANALYZE TEXT →</button>
                     </div>
                 </div>
             </div>
@@ -250,6 +249,7 @@
         setTimeout(() => {
             guestSection.classList.remove('opacity-0', 'translate-y-8');
         }, 50);
+        selectGuestType('child');
         window.scrollBy({ top: 200, behavior: 'smooth' });
     }
 

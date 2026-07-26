@@ -1139,6 +1139,31 @@ def debug_chapter(chapter_id):
         "narration_length": len(chapter.get('narration_script', ''))
     })
 
+@app.route("/api/tts/speak", methods=["POST"])
+def tts_speak():
+    """Stream TTS audio for arbitrary text — used by Story Mode Read Aloud."""
+    try:
+        data = request.get_json(force=True)
+        text = (data.get("text") or "").strip()
+        lang = data.get("lang", session.get("preferred_language", "en"))
+        voice_key = data.get("voice", session.get("voice", "standard_female"))
+
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        # Resolve the correct neural voice for the language
+        lang_voice = get_voice_for_language(lang, voice_key)
+        voice = lang_voice if lang_voice else "en-US-AriaNeural"
+
+        print(f"🔊 [TTS-SPEAK] lang={lang}, voice={voice}, chars={len(text)}")
+        audio_stream = generate_chapter_audio_stream(text, voice_id=voice)
+        return Response(stream_with_context(audio_stream), mimetype="audio/mpeg", direct_passthrough=True)
+
+    except Exception as e:
+        print(f"✗ [TTS-SPEAK] Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/audio/stream/<int:chapter_id>")
 def stream_audio(chapter_id):
     """Generates audio dynamically on the fly without saving"""

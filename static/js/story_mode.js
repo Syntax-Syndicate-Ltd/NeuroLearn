@@ -13,7 +13,7 @@ class StoryModeRenderer {
         this.currentPanel = 0;
         this.isLoading = false;
         this.isReading = false;
-        this.speechSynth = window.speechSynthesis;
+        this.audioEl = null;  // HTML5 Audio element for backend TTS
     }
 
     /**
@@ -150,88 +150,154 @@ class StoryModeRenderer {
     }
 
     /**
-     * Read a single panel aloud using browser TTS
+     * Clean dialogue text for TTS — strips character name prefixes like "Name: "
+     * and removes stray panel-number lines so TTS doesn't read "colon" or numbers.
+     */
+    cleanForTTS(text) {
+        if (!text) return '';
+        // Remove lines that are ONLY a number (panel number artifacts)
+        let cleaned = text.split('\n')
+            .map(line => line.trim())
+            .filter(line => !/^\d+$/.test(line))
+            .join(' ');
+        // Strip "Character Name: " prefixes (works for any language including Marathi/Hindi)
+        // Pattern: one or more non-colon words, then a colon+space at start of a sentence
+        cleaned = cleaned.replace(/[^.!?]*?:\s+/g, ' ');
+        // Collapse multiple spaces
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        return cleaned;
+    }
+
+    /**
+     * Stop any currently playing audio
+     */
+    stopAudio() {
+        if (this.audioEl) {
+            this.audioEl.pause();
+            this.audioEl.src = '';
+            this.audioEl = null;
+        }
+        this.isReading = false;
+    }
+
+    /**
+     * Send text to backend edge-tts and play the returned audio stream.
+     * Uses Microsoft Neural voices (mr-IN-AarohiNeural, hi-IN-SwaraNeural, etc.)
+     * which work for ALL languages regardless of what's installed on the OS.
+     * @param {string} text - cleaned text to speak
+     * @param {Function} onEnd - callback when audio finishes
+     */
+    async speakViaBackend(text, onEnd) {
+        const lang = window.preferredLanguage || 'en';
+        const voice = window.userVoice || 'standard_female';
+
+        try {
+            const response = await fetch('/api/tts/speak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, lang, voice })
+            });
+
+            if (!response.ok) throw new Error(`TTS server error: ${response.status}`);
+
+            // Convert streamed response to a blob URL for the Audio element
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            this.audioEl = new Audio(url);
+            this.audioEl.onended = () => {
+                URL.revokeObjectURL(url);
+                this.isReading = false;
+                if (onEnd) onEnd();
+            };
+            this.audioEl.onerror = () => {
+                URL.revokeObjectURL(url);
+                this.isReading = false;
+                if (onEnd) onEnd();
+            };
+            this.audioEl.play();
+
+        } catch (err) {
+            console.error('[TTS] Backend TTS failed:', err);
+            this.isReading = false;
+            if (onEnd) onEnd();
+        }
+    }
+
+    /**
+     * Read a single panel aloud via backend edge-tts
      */
     readPanel(panelIndex) {
         if (this.isReading) {
-            this.speechSynth.cancel();
-            this.isReading = false;
+            this.stopAudio();
+            document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
             return;
         }
-        
+
         const panel = this.panels[panelIndex];
         if (!panel || !panel.dialogue) return;
-        
-        const utterance = new SpeechSynthesisUtterance(panel.dialogue);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.lang = 'en-US';
-        
+
         // Highlight current panel
         document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
         const panelEl = document.querySelector(`[data-panel="${panelIndex}"]`);
         if (panelEl) panelEl.classList.add('manga-panel-reading');
-        
-        utterance.onend = () => {
-            this.isReading = false;
-            if (panelEl) panelEl.classList.remove('manga-panel-reading');
-        };
-        
+
         this.isReading = true;
-        this.speechSynth.speak(utterance);
+        this.speakViaBackend(this.cleanForTTS(panel.dialogue), () => {
+            if (panelEl) panelEl.classList.remove('manga-panel-reading');
+        });
     }
 
     /**
-     * Read the entire story aloud
+     * Read the entire story aloud via backend edge-tts
      */
     readAll() {
+        const btn = document.getElementById('story-read-all-btn');
+
         if (this.isReading) {
-            this.speechSynth.cancel();
-            this.isReading = false;
-            const btn = document.getElementById('story-read-all-btn');
+            this.stopAudio();
+            document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
             if (btn) btn.innerHTML = '<i class="fas fa-play"></i> Read Aloud';
             return;
         }
-        
-        const text = this.readAloudScript || this.panels.map(p => p.dialogue).join('. ');
+
+        const rawText = this.readAloudScript || this.panels.map(p => p.dialogue).join('. ');
+        const text = this.cleanForTTS(rawText);
         if (!text) return;
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.85;
-        utterance.pitch = 1.05;
-        utterance.lang = 'en-US';
-        
-        const btn = document.getElementById('story-read-all-btn');
-        if (btn) btn.innerHTML = '<i class="fas fa-stop"></i> Stop Reading';
-        
-        // Animate through panels as reading progresses
+
+        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Audio...';
+
+        // Animate through panels while audio plays
         let panelIdx = 0;
-        const wordsPerPanel = text.split(' ').length / this.panels.length;
-        const timePerPanel = (text.split(' ').length / 2.5) / this.panels.length * 1000; // ~2.5 words/sec
-        
-        const panelHighlighter = setInterval(() => {
-            if (!this.isReading || panelIdx >= this.panels.length) {
-                clearInterval(panelHighlighter);
-                return;
-            }
-            document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
-            const el = document.querySelector(`[data-panel="${panelIdx}"]`);
-            if (el) {
-                el.classList.add('manga-panel-reading');
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            panelIdx++;
-        }, timePerPanel);
-        
-        utterance.onend = () => {
-            this.isReading = false;
-            clearInterval(panelHighlighter);
+        let panelHighlighter = null;
+
+        this.isReading = true;
+        this.speakViaBackend(text, () => {
+            // On end — clean up
+            if (panelHighlighter) clearInterval(panelHighlighter);
             document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
             if (btn) btn.innerHTML = '<i class="fas fa-play"></i> Read Aloud';
-        };
-        
-        this.isReading = true;
-        this.speechSynth.speak(utterance);
+        });
+
+        // Start panel highlighter after a short delay (audio starts playing)
+        setTimeout(() => {
+            if (!this.isReading) return;
+            if (btn) btn.innerHTML = '<i class="fas fa-stop"></i> Stop Reading';
+            const timePerPanel = (text.split(' ').length / 2.5) / this.panels.length * 1000;
+            panelHighlighter = setInterval(() => {
+                if (!this.isReading || panelIdx >= this.panels.length) {
+                    clearInterval(panelHighlighter);
+                    return;
+                }
+                document.querySelectorAll('.manga-panel').forEach(p => p.classList.remove('manga-panel-reading'));
+                const el = document.querySelector(`[data-panel="${panelIdx}"]`);
+                if (el) {
+                    el.classList.add('manga-panel-reading');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                panelIdx++;
+            }, timePerPanel);
+        }, 800);
     }
 
     /**
@@ -239,8 +305,7 @@ class StoryModeRenderer {
      */
     close() {
         if (this.isReading) {
-            this.speechSynth.cancel();
-            this.isReading = false;
+            this.stopAudio();
         }
         
         this.container.classList.add('hidden');

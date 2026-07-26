@@ -13,7 +13,7 @@
 **NeuroLearn AI** transforms any PDF, textbook, or raw text into a fully personalized,  
 multi-sensory learning experience — tailored for neurodivergent and neurotypical learners alike.
 
-_AI-generated narrations · Arcade games · Emotion detection · Multilingual TTS · Parent analytics_
+_AI Narrations_ &nbsp;•&nbsp; _Arcade Games_ &nbsp;•&nbsp; _Emotion Tracking_ &nbsp;•&nbsp; _Multilingual TTS_ &nbsp;•&nbsp; _Parent Analytics_
 
 <br />
 
@@ -21,7 +21,7 @@ _AI-generated narrations · Arcade games · Emotion detection · Multilingual TT
 
 <br />
 
-[Get Started](#-quick-start) · [Features](#-features) · [Architecture](#-architecture) · [Contributing](CONTRIBUTING.md)
+[Get Started](#-quick-start) · [Features](#-features) · [Architecture](docs/ARCHITECTURE.md)
 
 ---
 
@@ -130,6 +130,8 @@ No quiz-like text buttons. Every game is a real game.
 
 ## 🏗️ Architecture
 
+> 📖 **Full Details:** See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the complete system design, data model, and cognitive adaptation logic.
+
 ```
 NeuroLearn/
 │
@@ -138,6 +140,12 @@ NeuroLearn/
 ├── requirements.txt                # Python dependencies
 ├── .env                            # Environment variables (API keys, model config)
 ├── .gitignore                      # Git ignore rules
+│
+├── docs/                           # Project Documentation
+│   ├── API.md                      # Complete endpoint reference
+│   ├── ARCHITECTURE.md             # System design and data models
+│   ├── DEPLOYMENT.md               # Production deployment guides
+│   └── ENVIRONMENT.md              # Env variables and Firebase setup
 │
 ├── utils/
 │   ├── ai_processor.py             # LLM orchestration — Groq & OpenRouter routing,

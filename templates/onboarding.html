@@ -3,184 +3,177 @@
 <div class="max-w-4xl mx-auto pt-8">
     <!-- Progress Dots -->
     <div class="flex justify-center gap-4 mb-12">
-        <div id="dot-1" class="w-3 h-3 rounded-full transition-all duration-300" style="background: #FF6B6B; box-shadow: 0 0 10px rgba(255,107,107,0.3);"></div>
-        <div id="dot-2" class="w-3 h-3 rounded-full transition-all duration-300" style="background: rgba(255,255,255,0.08);"></div>
-        <div id="dot-3" class="w-3 h-3 rounded-full transition-all duration-300" style="background: rgba(255,255,255,0.08);"></div>
+        <div id="dot-1" class="w-3 h-3 rounded-full transition-all duration-300" style="background: #10B981; box-shadow: 0 0 10px rgba(16,185,129,0.4);"></div>
+        <div id="dot-2" class="w-3 h-3 rounded-full transition-all duration-300" style="background: #CBD5E1;"></div>
+        <div id="dot-3" class="w-3 h-3 rounded-full transition-all duration-300" style="background: #CBD5E1;"></div>
     </div>
 
     <div class="relative overflow-hidden min-h-[500px]">
         
         <!-- Step 1: Name -->
         <div id="step-1" class="wizard-step flex flex-col items-center justify-center p-8 text-center transition-all duration-500">
-            <h2 class="text-4xl font-bold font-heading mb-8">What should we call you?</h2>
+            <h2 class="text-4xl font-black font-heading mb-8" style="color: #1E293B;">What should we call you?</h2>
             <div class="relative w-full max-w-md">
                 <input type="text" id="student-name" value="{{ name }}" 
-                       class="w-full bg-transparent text-4xl text-center py-4 outline-none transition-all font-heading placeholder-white/20"
-                       style="border-bottom: 2px solid rgba(255,255,255,0.15);"
-                       onfocus="this.style.borderBottomColor='#FF6B6B'" onblur="this.style.borderBottomColor='rgba(255,255,255,0.15)'"
-                       placeholder="Enter Your Name">
-                <p class="text-sm mt-12" style="color: #9B96B0;">This is how your AI tutor will address you throughout the journey.</p>
+                       class="w-full bg-white text-3xl font-black text-center py-5 px-6 rounded-2xl outline-none transition-all font-heading text-slate-800 placeholder-slate-400 shadow-md"
+                       style="border: 3px solid #0EA5E9; box-shadow: 0 6px 0 #0284C7;"
+                       placeholder="Enter Your Name" autofocus>
+                <p class="text-base font-bold mt-6" style="color: #64748B;">This is how your AI tutor will address you throughout the journey.</p>
             </div>
-            <button onclick="nextStep(2)" class="btn-primary mt-12 px-12 py-4">
-                Next <i class="fas fa-chevron-right ml-2 text-xs"></i>
+            <button onclick="nextStep(2)" class="btn-primary mt-10 px-14 py-4 text-xl">
+                NEXT <i class="fas fa-chevron-right ml-2 text-sm"></i>
             </button>
         </div>
 
         <!-- Step 2: Cognitive Style -->
         <div id="step-2" class="wizard-step hidden opacity-0 translate-x-12 flex flex-col items-center p-8 transition-all duration-500">
-            <h2 class="text-3xl font-bold font-heading mb-10 text-center">How do you want to learn today?</h2>
+            <h2 class="text-3xl font-black font-heading mb-10 text-center" style="color: #1E293B;">How do you want to learn today?</h2>
             
             <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
-                <button onclick="selectStyle('focus')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative" id="card-focus">
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style="background: rgba(108,99,255,0.04);"></div>
+                <button type="button" onclick="selectStyle('focus')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative cursor-pointer" id="card-focus">
                     <div class="relative z-10">
-                        <div class="flex items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4 mb-4">
                             <span class="text-4xl">⚓</span>
-                            <h3 class="text-2xl font-bold font-heading">Focus Mode</h3>
+                            <h3 class="text-2xl font-black font-heading" style="color: #1E293B;">Focus Mode</h3>
                         </div>
-                        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color: #6C63FF;">Structured • Calm • Deep Dives</p>
-                        <p class="text-sm leading-relaxed" style="color: #9B96B0;">Perfect for complex topics. Your AI tutor speaks in rich, metaphorical prose at a measured pace.</p>
+                        <p class="text-xs font-black uppercase tracking-widest mb-3" style="color: #8B5CF6;">Structured • Calm • Deep Dives</p>
+                        <p class="text-sm font-semibold leading-relaxed" style="color: #64748B;">Perfect for complex topics. Your AI tutor speaks in rich, metaphorical prose at a measured pace.</p>
                     </div>
                 </button>
 
-                <button onclick="selectStyle('energy')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative" id="card-energy">
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style="background: rgba(78,205,196,0.04);"></div>
+                <button type="button" onclick="selectStyle('energy')" class="style-card glass group p-8 text-left transition-all hover:scale-[1.02] overflow-hidden relative cursor-pointer" id="card-energy">
                     <div class="relative z-10">
-                        <div class="flex items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4 mb-4">
                             <span class="text-4xl">⚡</span>
-                            <h3 class="text-2xl font-bold font-heading">Energy Mode</h3>
+                            <h3 class="text-2xl font-black font-heading" style="color: #1E293B;">Energy Mode</h3>
                         </div>
-                        <p class="text-xs font-bold uppercase tracking-widest mb-4" style="color: #4ECDC4;">Fast • Punchy • Hyped Up</p>
-                        <p class="text-sm leading-relaxed" style="color: #9B96B0;">Turbocharge your learning. Your AI tutor speaks with rhythm and drive — like a hype coach.</p>
+                        <p class="text-xs font-black uppercase tracking-widest mb-3" style="color: #0EA5E9;">Fast • Punchy • Hyped Up</p>
+                        <p class="text-sm font-semibold leading-relaxed" style="color: #64748B;">Turbocharge your learning. Your AI tutor speaks with rhythm and drive — like a hype coach.</p>
                     </div>
                 </button>
             </div>
             
             <div class="flex gap-4 mt-12 w-full max-w-4xl">
-                <button onclick="nextStep(1)" class="btn-secondary px-8">Back</button>
-                <button onclick="nextStep(3)" class="btn-primary flex-1 py-4" id="btn-next-2" disabled>Continued Choosing Style...</button>
+                <button type="button" onclick="nextStep(1)" class="btn-secondary px-8">Back</button>
+                <button type="button" onclick="nextStep(3)" class="btn-primary flex-1 py-4 text-lg" id="btn-next-2" disabled>Continue Choosing Style...</button>
             </div>
         </div>
 
         <!-- Step 3: Expression & Voice -->
         <div id="step-3" class="wizard-step hidden opacity-0 translate-x-12 flex flex-col items-center p-8 transition-all duration-500">
-            <h2 class="text-3xl font-bold font-heading mb-12 text-center">Finalizing Your Experience</h2>
+            <h2 class="text-3xl font-black font-heading mb-10 text-center" style="color: #1E293B;">Finalizing Your Experience</h2>
             
-            <div class="grid md:grid-cols-2 gap-12 w-full max-w-4xl">
-                <div class="space-y-6">
-                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #FF6B6B;">Your Narrator's Voice</label>
+            <div class="grid md:grid-cols-2 gap-8 w-full max-w-4xl">
+                <div class="space-y-4">
+                    <label class="text-xs font-black uppercase tracking-widest block" style="color: #EC4899;">Your Narrator's Voice</label>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="voice" value="standard_female" checked class="hidden peer">
-                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
-                                 style="border-color: rgba(255,255,255,0.06);">
-                                <i class="fas fa-venus text-xl mb-1"></i>
-                                <p class="text-xs font-bold leading-tight">Standard<br>Female</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="voice" value="standard_female" checked class="hidden">
+                            <div class="opt-card p-4 text-center flex flex-col items-center justify-center">
+                                <i class="fas fa-venus text-2xl mb-1 text-pink-500"></i>
+                                <p class="text-xs font-extrabold leading-tight">Standard<br>Female</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="voice" value="standard_male" class="hidden peer">
-                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
-                                 style="border-color: rgba(255,255,255,0.06);">
-                                <i class="fas fa-mars text-xl mb-1"></i>
-                                <p class="text-xs font-bold leading-tight">Standard<br>Male</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="voice" value="standard_male" class="hidden">
+                            <div class="opt-card p-4 text-center flex flex-col items-center justify-center">
+                                <i class="fas fa-mars text-2xl mb-1 text-sky-500"></i>
+                                <p class="text-xs font-extrabold leading-tight">Standard<br>Male</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="voice" value="fun_female" class="hidden peer">
-                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
-                                 style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-xl mb-1 block">✨</span>
-                                <p class="text-xs font-bold leading-tight">Energetic<br>Female</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="voice" value="fun_female" class="hidden">
+                            <div class="opt-card p-4 text-center flex flex-col items-center justify-center">
+                                <span class="text-2xl mb-1 block">✨</span>
+                                <p class="text-xs font-extrabold leading-tight">Energetic<br>Female</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="voice" value="fun_male" class="hidden peer">
-                            <div class="glass p-3 text-center peer-checked:bg-indigo/10 transition-all flex flex-col items-center justify-center h-full"
-                                 style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-xl mb-1 block">⚡</span>
-                                <p class="text-xs font-bold leading-tight">Energetic<br>Male</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="voice" value="fun_male" class="hidden">
+                            <div class="opt-card p-4 text-center flex flex-col items-center justify-center">
+                                <span class="text-2xl mb-1 block">⚡</span>
+                                <p class="text-xs font-extrabold leading-tight">Energetic<br>Male</p>
                             </div>
                         </label>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #4ECDC4;">How are you feeling?</label>
+                <div class="space-y-4">
+                    <label class="text-xs font-black uppercase tracking-widest block" style="color: #0EA5E9;">How are you feeling?</label>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="emotion" value="great" checked class="hidden peer">
-                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-2xl mb-1 block">😄</span>
-                                <p class="text-[10px] font-bold uppercase">Great</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="emotion" value="great" checked class="hidden">
+                            <div class="opt-card p-4 text-center">
+                                <span class="text-3xl mb-1 block">😄</span>
+                                <p class="text-xs font-extrabold uppercase">Great</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="emotion" value="okay" class="hidden peer">
-                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-2xl mb-1 block">😐</span>
-                                <p class="text-[10px] font-bold uppercase">Okay</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="emotion" value="okay" class="hidden">
+                            <div class="opt-card p-4 text-center">
+                                <span class="text-3xl mb-1 block">😐</span>
+                                <p class="text-xs font-extrabold uppercase">Okay</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="emotion" value="tired" class="hidden peer">
-                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-2xl mb-1 block">😴</span>
-                                <p class="text-[10px] font-bold uppercase">Tired</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="emotion" value="tired" class="hidden">
+                            <div class="opt-card p-4 text-center">
+                                <span class="text-3xl mb-1 block">😴</span>
+                                <p class="text-xs font-extrabold uppercase">Tired</p>
                             </div>
                         </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="emotion" value="anxious" class="hidden peer">
-                            <div class="glass p-3 text-center transition-all" style="border-color: rgba(255,255,255,0.06);">
-                                <span class="text-2xl mb-1 block">😰</span>
-                                <p class="text-[10px] font-bold uppercase">Anxious</p>
+                        <label class="cursor-pointer block">
+                            <input type="radio" name="emotion" value="anxious" class="hidden">
+                            <div class="opt-card p-4 text-center">
+                                <span class="text-3xl mb-1 block">😰</span>
+                                <p class="text-xs font-extrabold uppercase">Anxious</p>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <!-- Language Selection -->
-                <div class="space-y-6 md:col-span-2">
-                    <label class="text-xs font-bold uppercase tracking-widest" style="color: #2ED573;">Language of Learning</label>
+                <div class="space-y-4 md:col-span-2">
+                    <label class="text-xs font-black uppercase tracking-widest block" style="color: #10B981;">Language of Learning</label>
                     <div class="flex flex-wrap gap-3">
                         <label class="cursor-pointer">
-                            <input type="radio" name="preferred_language" value="en" checked class="hidden peer">
-                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
-                                <p class="text-xs font-bold">English</p>
+                            <input type="radio" name="preferred_language" value="en" checked class="hidden">
+                            <div class="opt-card px-6 py-3 text-center rounded-full">
+                                <p class="text-sm font-extrabold">English</p>
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="preferred_language" value="hi" class="hidden peer">
-                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
-                                <p class="text-xs font-bold">हिंदी</p>
+                            <input type="radio" name="preferred_language" value="hi" class="hidden">
+                            <div class="opt-card px-6 py-3 text-center rounded-full">
+                                <p class="text-sm font-extrabold">हिंदी</p>
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="preferred_language" value="mr" class="hidden peer">
-                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
-                                <p class="text-xs font-bold">मराठी</p>
+                            <input type="radio" name="preferred_language" value="mr" class="hidden">
+                            <div class="opt-card px-6 py-3 text-center rounded-full">
+                                <p class="text-sm font-extrabold">मराठी</p>
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="preferred_language" value="ta" class="hidden peer">
-                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
-                                <p class="text-xs font-bold">தமிழ்</p>
+                            <input type="radio" name="preferred_language" value="ta" class="hidden">
+                            <div class="opt-card px-6 py-3 text-center rounded-full">
+                                <p class="text-sm font-extrabold">தமிழ்</p>
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="preferred_language" value="te" class="hidden peer">
-                            <div class="glass px-5 py-2 text-center transition-all rounded-full" style="border-color: rgba(255,255,255,0.06);">
-                                <p class="text-xs font-bold">తెలుగు</p>
+                            <input type="radio" name="preferred_language" value="te" class="hidden">
+                            <div class="opt-card px-6 py-3 text-center rounded-full">
+                                <p class="text-sm font-extrabold">తెలుగు</p>
                             </div>
                         </label>
                     </div>
                 </div>
             </div>
             
-            <div class="flex gap-4 mt-16 w-full max-w-4xl">
-                <button onclick="nextStep(2)" class="btn-secondary px-8">Back</button>
-                <button onclick="startProcessing()" class="btn-primary flex-1 py-4 text-xl">
-                    Let's Build Your Course →
+            <div class="flex gap-4 mt-12 w-full max-w-4xl">
+                <button type="button" onclick="nextStep(2)" class="btn-secondary px-8">Back</button>
+                <button type="button" onclick="startProcessing()" class="btn-primary flex-1 py-4 text-xl">
+                    LET'S BUILD YOUR COURSE →
                 </button>
             </div>
         </div>
@@ -189,19 +182,45 @@
 
 <style>
     .wizard-step.hidden { display: none; }
+    
+    /* Style Cards (Step 2) */
+    .style-card {
+        background: #FFFFFF !important;
+        border: 3px solid #E2E8F0 !important;
+        border-radius: 24px !important;
+        transition: all 0.2s ease !important;
+    }
     .style-card.active {
-        border-color: #6C63FF !important;
-        box-shadow: 0 4px 30px rgba(108, 99, 255, 0.15);
-        background: rgba(108, 99, 255, 0.04);
+        border-color: #8B5CF6 !important;
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.25) !important;
+        background: #F5F3FF !important;
     }
     .style-card.active#card-energy {
-        border-color: #4ECDC4 !important;
-        box-shadow: 0 4px 30px rgba(78, 205, 196, 0.15);
-        background: rgba(78, 205, 196, 0.04);
+        border-color: #0EA5E9 !important;
+        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.25) !important;
+        background: #F0F9FF !important;
     }
-    .peer:checked + div {
-        border-color: #6C63FF !important;
-        background: rgba(108, 99, 255, 0.06);
+
+    /* Option Cards (Step 3) */
+    .opt-card {
+        background: #FFFFFF !important;
+        border: 3px solid #E2E8F0 !important;
+        border-radius: 20px !important;
+        color: #1E293B !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer;
+    }
+    .opt-card:hover {
+        border-color: #10B981 !important;
+        background: #F0FDF4 !important;
+        transform: translateY(-2px);
+    }
+    input[type="radio"]:checked + .opt-card {
+        background: #E6F4EA !important;
+        border-color: #10B981 !important;
+        box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3) !important;
+        color: #047857 !important;
+        transform: translateY(-2px);
     }
 </style>
 {% endblock %}
@@ -235,10 +254,10 @@
         for (let i = 1; i <= 3; i++) {
             const dot = document.getElementById(`dot-${i}`);
             if (i <= currentStep) {
-                dot.style.background = '#FF6B6B';
-                dot.style.boxShadow = '0 0 10px rgba(255,107,107,0.3)';
+                dot.style.background = '#10B981';
+                dot.style.boxShadow = '0 0 10px rgba(16,185,129,0.4)';
             } else {
-                dot.style.background = 'rgba(255,255,255,0.08)';
+                dot.style.background = '#CBD5E1';
                 dot.style.boxShadow = 'none';
             }
         }
@@ -251,7 +270,7 @@
         
         const btn = document.getElementById('btn-next-2');
         btn.disabled = false;
-        btn.textContent = `Continue with ${style.toUpperCase()} Mode →`;
+        btn.textContent = `CONTINUE WITH ${style.toUpperCase()} MODE →`;
     }
 
     async function startProcessing() {
