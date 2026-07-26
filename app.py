@@ -1,8 +1,3 @@
-# Generate app.py from the NeuroLearn AI spec. 
-# Write complete, production-ready code. 
-# Zero placeholder comments. 
-# Every function fully implemented. 
-
 import os
 import sys
 import json
