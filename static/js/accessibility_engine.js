@@ -108,15 +108,32 @@ class AccessibilityEngine {
     }
 
     applyFontScaling() {
+        const updateContentFont = (size) => {
+            let styleEl = document.getElementById('nl-custom-font-style');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'nl-custom-font-style';
+                document.head.appendChild(styleEl);
+            }
+            styleEl.innerHTML = `
+                #text-container > div,
+                #story-mode-container .manga-dialogue,
+                #simple-mode-container p,
+                #simple-mode-container h3 {
+                    font-size: ${size} !important;
+                    line-height: 1.6 !important;
+                }
+            `;
+        };
+
         // Restore saved font size from localStorage
         const savedFont = localStorage.getItem('nl_font_size');
         if (savedFont) {
-            this.body.style.fontSize = savedFont;
+            updateContentFont(savedFont);
         }
-
         // If processing speed is slow, slightly increase base font
-        if (this.profile.slow_processing && !savedFont) {
-            this.body.style.fontSize = '18px';
+        else if (this.profile.slow_processing) {
+            updateContentFont('20px');
         }
     }
 

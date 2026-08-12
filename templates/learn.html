@@ -639,18 +639,39 @@
     window.preferredLanguage = "{{ preferred_language }}";
     
     // === ACCESSIBILITY TOOLBAR JS ===
+    let currentFontSize = parseFloat(localStorage.getItem('nl_font_size')) || 18; // Default text-lg is 18px
+
+    function updateStudyFontSize(size) {
+        let styleEl = document.getElementById('nl-custom-font-style');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'nl-custom-font-style';
+            document.head.appendChild(styleEl);
+        }
+        styleEl.innerHTML = `
+            #text-container > div,
+            #story-mode-container .manga-dialogue,
+            #simple-mode-container p,
+            #simple-mode-container h3 {
+                font-size: ${size} !important;
+                line-height: 1.6 !important;
+            }
+        `;
+        localStorage.setItem('nl_font_size', size);
+    }
+
     document.getElementById('font-increase')?.addEventListener('click', () => {
-        const current = parseFloat(getComputedStyle(document.body).fontSize);
-        document.body.style.fontSize = Math.min(current + 2, 28) + 'px';
-        localStorage.setItem('nl_font_size', document.body.style.fontSize);
+        currentFontSize = Math.min(currentFontSize + 2, 28);
+        updateStudyFontSize(currentFontSize + 'px');
     });
+    
     document.getElementById('font-decrease')?.addEventListener('click', () => {
-        const current = parseFloat(getComputedStyle(document.body).fontSize);
-        document.body.style.fontSize = Math.max(current - 2, 14) + 'px';
-        localStorage.setItem('nl_font_size', document.body.style.fontSize);
+        currentFontSize = Math.max(currentFontSize - 2, 14);
+        updateStudyFontSize(currentFontSize + 'px');
     });
+    
     const savedFont = localStorage.getItem('nl_font_size');
-    if (savedFont) document.body.style.fontSize = savedFont;
+    if (savedFont) updateStudyFontSize(savedFont);
 
     document.getElementById('break-btn')?.addEventListener('click', () => {
         const audio = document.querySelector('audio');
