@@ -202,7 +202,9 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
         print(f"FALLING BACK TO GROQ | Model: {fallback}")
         return call_llm(system_prompt, user_prompt, model=fallback, retries=2)
         
-    raise last_error
+    if last_error:
+        raise last_error
+    raise Exception(f"LLM exhausted and failed after {retries} retries without a specific error.")
 
 def extract_text_from_pdf(pdf_file):
     from PyPDF2 import PdfReader
@@ -478,6 +480,20 @@ Return ONLY raw valid JSON. No markdown, no backticks, no explanation."""
         game_items_prompt = '''"game_items": [
     {"prompt": "Fix this key logic or code gap", "target": "correct_piece", "options": ["correct_piece", "wrong_piece_1", "wrong_piece_2"]}
   ]'''
+    elif assigned_game == "orbit_launcher":
+        game_items_prompt = '''"game_items": [
+    {
+      "round_id": 1,
+      "prompt": "Clear question here?",
+      "max_shots": 3,
+      "slingshot": { "x": 120, "y": 300 },
+      "planets": [
+        {"id": "p1", "label": "Correct Option", "is_correct": true, "x": 650, "y": 200, "radius": 45, "mass": 1200, "color": "#ff5722", "orbit_speed": 0.015, "orbit_radius": 30},
+        {"id": "p2", "label": "Wrong Option 1", "is_correct": false, "x": 550, "y": 420, "radius": 55, "mass": 2200, "color": "#ffb300", "orbit_speed": -0.01, "orbit_radius": 20},
+        {"id": "p3", "label": "Wrong Option 2", "is_correct": false, "x": 420, "y": 180, "radius": 40, "mass": 900, "color": "#81d4fa", "orbit_speed": 0.02, "orbit_radius": 15}
+      ]
+    }
+  ]'''
     else:
         game_items_prompt = '''"game_items": []'''
 
@@ -737,3 +753,93 @@ Return this exact JSON structure:
     
     return data
 
+def generate_orbit_launcher_game(chapter_text: str, learner_profile: dict) -> dict:
+    """
+    Generates Orbit Launcher physics game data based on chapter context.
+    """
+    system_prompt = """
+    You are an AI game designer for NeuroLearn. Generate an 'orbit_launcher' game.
+    Extract key concept associations and formulate 3 to 5 rounds.
+    Each round must have:
+    - prompt: A clear, single-concept question.
+    - planets: 3 to 4 answer options (1 correct, 2-3 distractors).
+    Output STRICT JSON matching the orbit_launcher schema.
+    """
+    
+    user_prompt = f"Generate Orbit Launcher game for:\n{chapter_text}\n\nSchema:\n{{\"game_type\": \"orbit_launcher\", \"rounds\": [{{\"round_id\": 1, \"prompt\": \"...\", \"max_shots\": 3, \"slingshot\": {{\"x\": 120, \"y\": 300}}, \"planets\": [{{\"id\": \"p1\", \"label\": \"...\", \"is_correct\": true, \"x\": 650, \"y\": 200, \"radius\": 45, \"mass\": 1200, \"color\": \"#ff5722\", \"orbit_speed\": 0.015, \"orbit_radius\": 30}}]}}]}}"
+    
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        "response_format": {"type": "json_object"}
+    }
+    
+    import json
+    import os
+    import requests
+    
+    openrouter_key, groq_key = get_ai_client()
+    url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
+    headers = {"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"}
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+        return json.loads(clean_ai_json(content))
+    except Exception as e:
+        print(f"Error generating orbit launcher game: {e}")
+        # Fallback data
+        return {
+          "game_type": "orbit_launcher",
+          "rounds": [
+            {
+              "round_id": 1,
+              "prompt": "Which planet is known as the Red Planet?",
+              "max_shots": 3,
+              "slingshot": { "x": 120, "y": 300 },
+              "planets": [
+                {
+                  "id": "p1",
+                  "label": "Mars",
+                  "is_correct": True,
+                  "x": 650,
+                  "y": 200,
+                  "radius": 45,
+                  "mass": 1200,
+                  "color": "#ff5722",
+                  "orbit_speed": 0.015,
+                  "orbit_radius": 30
+                },
+                {
+                  "id": "p2",
+                  "label": "Jupiter",
+                  "is_correct": False,
+                  "x": 550,
+                  "y": 420,
+                  "radius": 55,
+                  "mass": 2200,
+                  "color": "#ffb300",
+                  "orbit_speed": -0.01,
+                  "orbit_radius": 20
+                },
+                {
+                  "id": "p3",
+                  "label": "Venus",
+                  "is_correct": False,
+                  "x": 420,
+                  "y": 180,
+                  "radius": 40,
+                  "mass": 900,
+                  "color": "#81d4fa",
+                  "orbit_speed": 0.02,
+                  "orbit_radius": 15
+                }
+              ]
+            }
+          ]
+        }
