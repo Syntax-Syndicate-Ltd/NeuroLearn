@@ -55,5 +55,24 @@
 {% endblock %}
 
 {% block scripts %}
+{% if chapter.game_type == 'orbit_launcher' %}
+<script src="{{ url_for('static', filename='js/orbit_launcher.js') }}"></script>
+<script>
+    // Initialize OrbitLauncherGame with inline gameData (which is an array of rounds)
+    document.addEventListener('DOMContentLoaded', () => {
+        // OrbitLauncherGame expects { rounds: [...] } as data
+        const gameData = { rounds: window.gameData };
+        new OrbitLauncherGame('arcade-canvas', gameData, (results) => {
+            // Show Game Complete Overlay
+            const overlay = document.getElementById('game-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.style.opacity = '1', 50);
+            }
+        });
+    });
+</script>
+{% else %}
 <script src="{{ url_for('static', filename='js/game_engine.js') }}"></script>
+{% endif %}
 {% endblock %}

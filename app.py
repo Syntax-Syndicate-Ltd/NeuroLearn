@@ -993,7 +993,7 @@ def generate_chapter(chapter_id):
         learning_profile = session.get("learning_profile", {})
         raw_text = session.get("raw_content", "")
         
-        game_types = ["true_false_blitz", "concept_connect", "sequence_sort", "label_match"]
+        game_types = ["orbit_launcher", "true_false_blitz", "concept_connect", "sequence_sort", "label_match"]
         subject_domain = syllabus.get("subject_domain", "").lower()
         if any(w in subject_domain for w in ["coding", "programming", "computer", "development", "software"]):
             game_types.append("code_drop")
