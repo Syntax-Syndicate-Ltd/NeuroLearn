@@ -998,13 +998,8 @@ def generate_chapter(chapter_id):
         if any(w in subject_domain for w in ["coding", "programming", "computer", "development", "software"]):
             game_types.append("code_drop")
             
-        chapter_index = 0
-        for i, ch in enumerate(syllabus.get("chapters", [])):
-            if int(ch["id"]) == int(chapter_id):
-                chapter_index = i
-                break
-                
-        assigned_game = game_types[chapter_index % len(game_types)]
+        import random
+        assigned_game = random.choice(game_types)
         
         preferred_language = session.get("preferred_language", "en")
         full_chapter = process_chapter(target_chapter, cognitive_style, gender, emotion, learning_profile, raw_text, assigned_game, preferred_language=preferred_language)
