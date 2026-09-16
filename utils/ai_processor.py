@@ -137,7 +137,8 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
-        ]
+        ],
+        "max_tokens": 16384
     }
     
     # Use strict JSON mode ONLY for OpenRouter — Groq's gpt-oss and qwen models do NOT support
@@ -269,7 +270,8 @@ def generate_syllabus(raw_text, preferred_language="en"):
     """
     # openai/gpt-oss-20b: confirmed LIVE on this Groq account (verified Sep 2026)
     # Fast, high-quality, free tier. Falls back to gpt-oss-120b on 429.
-    model = os.getenv("SYLLABUS_MODEL", "openai/gpt-oss-20b")
+    # Use gpt-oss-120b for syllabus — the 20b model truncates output on 10-chapter syllabi
+    model = os.getenv("SYLLABUS_MODEL", "openai/gpt-oss-120b")
     raw_response = call_llm(system_prompt, user_prompt, model=model)
     cleaned = clean_ai_json(raw_response)
     
@@ -594,8 +596,9 @@ Return this exact JSON structure:
     print(f"   Emotion: {emotion}")
     print(f"   Gender: {gender}")
     
-    # openai/gpt-oss-20b: confirmed LIVE on this Groq account (verified Sep 2026)
-    model = os.getenv("CHAPTER_MODEL", "openai/gpt-oss-20b")
+    # Use gpt-oss-120b for chapters — 20b truncates the large chapter JSON
+    # (1500-word narration + quiz + game + mindmap exceeds 20b's output capacity)
+    model = os.getenv("CHAPTER_MODEL", "openai/gpt-oss-120b")
     
     # ⭐ VALIDATION LOOP: Ensure comprehensive content
     max_retries = 2
