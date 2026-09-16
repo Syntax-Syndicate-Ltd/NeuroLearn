@@ -172,11 +172,13 @@ Both indicate the database layer is operational.
 
 ```
 
-CRITICAL LLM ERROR (Groq | llama-3.3-70b-versatile): ReadTimeout
+CRITICAL LLM ERROR (Groq | openai/gpt-oss-20b): ReadTimeout
 
 ```
 
-**Fix:** Increase Gunicorn `--timeout` to `180`. Ensure your API key has sufficient quota.
+**Fix:** Increase Gunicorn `--timeout` to `180`. Ensure your Groq API key has sufficient free-tier quota.
+
+> **⚠️ Note:** If you see this error with `llama-3.3-70b-versatile` or `llama-3.1-8b-instant`, those models are **deprecated** on Groq (Aug 2026). Update your `SYLLABUS_MODEL`/`CHAPTER_MODEL` env vars to `openai/gpt-oss-20b`.
 
 ---
 

@@ -208,7 +208,7 @@ NeuroLearn/
 | **Backend**           | Python 3.10+, Flask 3.0, Gunicorn                                                                 |
 | **Database**          | Firebase Firestore (REST API + in-memory resilient cache)                                         |
 | **Authentication**    | Firebase Auth REST API (`identitytoolkit.googleapis.com`)                                         |
-| **AI / LLM**          | Groq (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`), OpenRouter (dynamic free model routing) |
+| **AI / LLM**          | Groq (`openai/gpt-oss-20b`, `openai/gpt-oss-120b`, `qwen/qwen3.8-27b`), OpenRouter (dynamic free model routing) |
 | **Text-to-Speech**    | `edge-tts` (primary), Google Translate TTS (fallback)                                             |
 | **Image Generation**  | Hugging Face Inference API (manga panels)                                                         |
 | **Frontend**          | Vanilla JavaScript (ES6+), HTML5 Canvas 2D, TailwindCSS                                           |
@@ -242,11 +242,11 @@ Create a `.env` file in the project root:
 GROQ_API_KEY="your-groq-api-key"
 OPENROUTER_API_KEY="your-openrouter-api-key"      # Optional
 
-# --- Model Configuration ---
-SYLLABUS_MODEL="llama-3.3-70b-versatile"
-CHAPTER_MODEL="llama-3.3-70b-versatile"
-FALLBACK_MODEL="llama-3.1-8b-instant"
-TUTOR_MODEL="llama-3.3-70b-versatile"
+# --- Model Configuration (verified live Sep 2026) ---
+SYLLABUS_MODEL="openai/gpt-oss-20b"
+CHAPTER_MODEL="openai/gpt-oss-20b"
+FALLBACK_MODEL="openai/gpt-oss-20b"
+TUTOR_MODEL="openai/gpt-oss-20b"
 
 # --- Flask ---
 FLASK_SECRET_KEY="your-secret-key"

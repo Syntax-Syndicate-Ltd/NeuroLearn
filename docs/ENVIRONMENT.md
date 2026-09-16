@@ -43,32 +43,35 @@ Fine-tune which models handle each task.
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `SYLLABUS_MODEL` | ❌ | `llama-3.3-70b-versatile` | Model for syllabus generation. Needs strong JSON output. |
-| `CHAPTER_MODEL` | ❌ | `llama-3.3-70b-versatile` | Model for chapter content (narration, games, quizzes). |
-| `FALLBACK_MODEL` | ❌ | `llama-3.1-8b-instant` | Fallback model when primary hits rate limits or errors. Also used by story generator. |
-| `TUTOR_MODEL` | ❌ | `llama-3.3-70b-versatile` | Model for the Socratic AI tutor. |
+| `SYLLABUS_MODEL` | ❌ | `openai/gpt-oss-20b` | Model for syllabus generation. Needs strong JSON output. Verified live Sep 2026. |
+| `CHAPTER_MODEL` | ❌ | `openai/gpt-oss-20b` | Model for chapter content (narration, games, quizzes). Verified live Sep 2026. |
+| `FALLBACK_MODEL` | ❌ | `openai/gpt-oss-20b` | Fallback model when primary hits rate limits or errors. Also used by story generator. |
+| `TUTOR_MODEL` | ❌ | `openai/gpt-oss-20b` | Model for the Socratic AI tutor. Verified live Sep 2026. |
 | `PRIMARY_MODEL` | ❌ | `openrouter/free` | Default OpenRouter model when none specified. `openrouter/free` auto-selects the best free model. |
 
 > [!TIP]
-> **Model routing rule:** If a model name contains `/` (e.g., `meta-llama/llama-3-70b`), it routes to OpenRouter. Bare names (e.g., `llama-3.3-70b-versatile`) route to Groq.
+> **Model routing rule:** Models starting with `openai/`, `meta-llama/`, `qwen/`, `groq/`, or `canopylabs/` route to **Groq**. All other `/`-containing names route to OpenRouter.
+> 
+> **⚠️ Deprecated (do not use):** `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`, `llama-4-scout-17b-16e-instruct` — all decommissioned on Groq as of Aug–Sep 2026.
 
-**Recommended configurations:**
+**Verified live configurations (tested Sep 16, 2026):**
 
 ```bash
-# Budget-friendly (free tier only)
-SYLLABUS_MODEL="llama-3.1-8b-instant"
-CHAPTER_MODEL="llama-3.1-8b-instant"
-FALLBACK_MODEL="llama-3.1-8b-instant"
+# Standard (free tier — all verified LIVE)
+SYLLABUS_MODEL="openai/gpt-oss-20b"
+CHAPTER_MODEL="openai/gpt-oss-20b"
+FALLBACK_MODEL="openai/gpt-oss-20b"
+TUTOR_MODEL="openai/gpt-oss-20b"
 
-# Balanced (default)
-SYLLABUS_MODEL="llama-3.3-70b-versatile"
-CHAPTER_MODEL="llama-3.3-70b-versatile"
-FALLBACK_MODEL="llama-3.1-8b-instant"
+# Higher quality (same free tier, larger model)
+SYLLABUS_MODEL="openai/gpt-oss-120b"
+CHAPTER_MODEL="openai/gpt-oss-120b"
+TUTOR_MODEL="openai/gpt-oss-120b"
+FALLBACK_MODEL="openai/gpt-oss-20b"
 
-# OpenRouter diversity
-SYLLABUS_MODEL="google/gemini-2.5-flash-preview"
-CHAPTER_MODEL="google/gemini-2.5-flash-preview"
-FALLBACK_MODEL="llama-3.1-8b-instant"
+# Alternative (qwen, also verified live)
+SYLLABUS_MODEL="qwen/qwen3.8-27b"
+CHAPTER_MODEL="qwen/qwen3.8-27b"
 ```
 
 <br />
@@ -190,11 +193,11 @@ The app creates collections automatically on first use. No manual setup needed.
 GROQ_API_KEY="your-groq-api-key"
 OPENROUTER_API_KEY=""
 
-# Model Configuration
-SYLLABUS_MODEL="llama-3.3-70b-versatile"
-CHAPTER_MODEL="llama-3.3-70b-versatile"
-FALLBACK_MODEL="llama-3.1-8b-instant"
-TUTOR_MODEL="llama-3.3-70b-versatile"
+# Model Configuration — Verified LIVE Sep 16, 2026
+SYLLABUS_MODEL="openai/gpt-oss-20b"
+CHAPTER_MODEL="openai/gpt-oss-20b"
+FALLBACK_MODEL="openai/gpt-oss-20b"
+TUTOR_MODEL="openai/gpt-oss-20b"
 
 # Flask
 FLASK_SECRET_KEY="generate-a-random-secret-here"

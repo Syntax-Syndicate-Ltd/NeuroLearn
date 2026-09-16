@@ -17,8 +17,8 @@ load_dotenv()
 def call_groq(system_prompt, user_prompt):
     """Call Groq API for text generation."""
     groq_key = os.getenv("GROQ_API_KEY")
-    # Use 8b-instant instead of 70b to prevent '429 Too Many Requests' limits
-    model = os.getenv("FALLBACK_MODEL", "llama-3.1-8b-instant")
+    # openai/gpt-oss-20b: confirmed LIVE on Groq (verified Sep 2026). llama-3.1-8b-instant is deprecated.
+    model = os.getenv("FALLBACK_MODEL", "openai/gpt-oss-20b")
     
     url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
     headers = {"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"}

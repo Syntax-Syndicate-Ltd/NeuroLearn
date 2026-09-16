@@ -1674,7 +1674,8 @@ def ask_tutor():
 
         # Call LLM — use Groq for fast response
         import os
-        model = os.getenv("TUTOR_MODEL", "llama-3.3-70b-versatile")
+        # openai/gpt-oss-20b: confirmed LIVE (verified Sep 2026 via API)
+        model = os.getenv("TUTOR_MODEL", "openai/gpt-oss-20b")
         answer = call_llm(system_prompt, user_prompt, model=model)
 
         # Clean up the answer (remove any JSON formatting if present)
