@@ -43,17 +43,39 @@
     <p id="game-instruction-text" style="text-align:center; margin-top:12px; font-size:14px; font-weight:700; color:#94A3B8;"></p>
 </div>
 
+<script id="game-data-json" type="application/json">
+    {{ chapter.game_items|tojson|safe }}
+</script>
 <script>
     window.chapterId = "{{ chapter.chapter_id }}";
-    window.gameData = {{ chapter.game_items|tojson }};
+    window.gameData = JSON.parse(document.getElementById('game-data-json').textContent || "[]");
     window.gameType = "{{ chapter.game_type }}";
-    window.xpReward = {{ chapter.xp_reward }};
-    window.gameTitle = {{ chapter.game_title|tojson }};
-    window.categoryLeft = {{ (chapter.category_left or 'Category A')|tojson }};
-    window.categoryRight = {{ (chapter.category_right or 'Category B')|tojson }};
+    window.xpReward = parseInt("{{ chapter.xp_reward }}", 10) || 0;
+    window.gameTitle = "{{ chapter.game_title }}";
+    window.categoryLeft = "{{ chapter.category_left or 'Category A' }}";
+    window.categoryRight = "{{ chapter.category_right or 'Category B' }}";
 </script>
 {% endblock %}
 
 {% block scripts %}
+{% if chapter.game_type == 'orbit_launcher' %}
+<script src="{{ url_for('static', filename='js/orbit_launcher.js') }}"></script>
+<script>
+    // Initialize OrbitLauncherGame with inline gameData (which is an array of rounds)
+    document.addEventListener('DOMContentLoaded', () => {
+        // OrbitLauncherGame expects { rounds: [...] } as data
+        const gameData = { rounds: window.gameData };
+        new OrbitLauncherGame('arcade-canvas', gameData, (results) => {
+            // Show Game Complete Overlay
+            const overlay = document.getElementById('game-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.style.opacity = '1', 50);
+            }
+        });
+    });
+</script>
+{% else %}
 <script src="{{ url_for('static', filename='js/game_engine.js') }}"></script>
+{% endif %}
 {% endblock %}

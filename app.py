@@ -22,7 +22,7 @@ from utils.ai_processor import extract_text_from_pdf, generate_syllabus, process
 from utils.tts_engine import generate_chapter_audio_stream, get_voice_for_language
 from utils.story_generator import generate_manga_story, generate_manga_images_batch, generate_simplified_content
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "neurolearn_super_secret_key_123")
@@ -993,18 +993,13 @@ def generate_chapter(chapter_id):
         learning_profile = session.get("learning_profile", {})
         raw_text = session.get("raw_content", "")
         
-        game_types = ["true_false_blitz", "concept_connect", "sequence_sort", "label_match"]
+        game_types = ["orbit_launcher", "true_false_blitz", "concept_connect", "sequence_sort", "label_match"]
         subject_domain = syllabus.get("subject_domain", "").lower()
         if any(w in subject_domain for w in ["coding", "programming", "computer", "development", "software"]):
             game_types.append("code_drop")
             
-        chapter_index = 0
-        for i, ch in enumerate(syllabus.get("chapters", [])):
-            if int(ch["id"]) == int(chapter_id):
-                chapter_index = i
-                break
-                
-        assigned_game = game_types[chapter_index % len(game_types)]
+        import random
+        assigned_game = random.choice(game_types)
         
         preferred_language = session.get("preferred_language", "en")
         full_chapter = process_chapter(target_chapter, cognitive_style, gender, emotion, learning_profile, raw_text, assigned_game, preferred_language=preferred_language)
@@ -1889,3 +1884,4 @@ def dna_card(topic_id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
