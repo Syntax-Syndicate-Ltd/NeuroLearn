@@ -140,8 +140,10 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
         ]
     }
     
-    # Use strict JSON mode ONLY for OpenRouter (it's robust enough), OR for Groq if requested
-    if "json" in system_prompt.lower() or "json" in user_prompt.lower():
+    # Use strict JSON mode ONLY for OpenRouter — Groq's gpt-oss and qwen models do NOT support
+    # response_format=json_object and return 400 Bad Request if it is sent.
+    # We rely on prompt-level JSON instructions for Groq models instead.
+    if not is_groq and ("json" in system_prompt.lower() or "json" in user_prompt.lower()):
         payload["response_format"] = {"type": "json_object"}
 
     last_error = None
