@@ -173,20 +173,19 @@ The LLM orchestration layer. Handles all AI model calls, prompt engineering, and
 │   call_llm(model)    │
 └──────────┬───────────┘
            │
-     ┌─────▼─────┐
-     │ "/" in     │──── Yes ──▶ OpenRouter API
-     │ model name?│
-     └─────┬─────┘
-           │ No
+     ┌─────▼────────────────────────────────────────────┐
+     │ Groq prefix? (openai/, meta-llama/, qwen/, etc.) │── Yes ──▶ Groq API
+     └─────┬────────────────────────────────────────────┘
+           │ No (other "/" prefix)
            ▼
-       Groq API
+      OpenRouter API
            │
      ┌─────▼──────────┐
-     │ 429 Rate Limit? │──── Yes ──▶ Rotate between llama-3.3-70b / llama-3.1-8b
+     │ 429 Rate Limit? │──── Yes ──▶ Rotate: gpt-oss-20b → gpt-oss-120b → qwen3.8-27b
      └─────┬──────────┘
            │ Exhausted
            ▼
-     Fallback to Groq (if was OpenRouter)
+     Fallback to Groq openai/gpt-oss-20b (if was OpenRouter)
 ```
 
 **Cognitive Adaptation System:**

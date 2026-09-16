@@ -110,9 +110,10 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
     openrouter_key, groq_key = get_ai_client()
     
     # 1. MODEL ROUTING LOGIC
-    # OpenRouter models usually contain a "/" 
-    # Groq models are bare
-    is_groq = model and ("/" not in model)
+    # Groq now hosts namespaced models (meta-llama/, openai/, moonshotai/, qwen/)
+    # Rule: route to Groq if model is bare (no "/") OR starts with a known Groq provider prefix
+    GROQ_NAMESPACED_PREFIXES = ("meta-llama/", "openai/", "moonshotai/", "qwen/", "groq/", "canopylabs/")
+    is_groq = model and ("/" not in model or model.startswith(GROQ_NAMESPACED_PREFIXES))
     
     if is_groq:
         url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
@@ -156,8 +157,6 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
                 delay = (2 ** attempt) + 1.5
                 print(f"⚠️ RATE LIMIT 429 from {api_name}. Retrying in {delay} seconds...")
                 time.sleep(delay)
-                response.raise_for_status() # Force the exception to go to except block
-                
             response.raise_for_status()
             data = response.json()
             content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
@@ -174,13 +173,16 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
             
             # Retry on 429, 500, 502, 503
             if status_code in [429, 500, 502, 503, 529]:
-                # Rotate among ACTIVE Groq models on Rate Limit (429) to avoid decommissioning 400s
+                # Rotate among ACTIVE Groq models on Rate Limit (429) to avoid decommissioning
                 if is_groq and status_code == 429:
-                    if payload["model"] == "llama-3.3-70b-versatile":
-                        payload["model"] = "llama-3.1-8b-instant"
+                    # Rotate through confirmed LIVE Groq models (verified Sep 2026)
+                    if payload["model"] == "openai/gpt-oss-20b":
+                        payload["model"] = "openai/gpt-oss-120b"
+                    elif payload["model"] == "openai/gpt-oss-120b":
+                        payload["model"] = "qwen/qwen3.8-27b"
                     else:
-                        payload["model"] = "llama-3.3-70b-versatile"
-                    print(f"🔄 Rotating to Groq active backup model: {payload['model']}")
+                        payload["model"] = "openai/gpt-oss-20b"
+                    print(f"🔄 Rotating to Groq backup model: {payload['model']}")
                     
                 delay = (2 ** attempt) + 1.5
                 print(f"🔄 Retrying {api_name} in {delay}s...")
@@ -196,13 +198,15 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
             
     print(f"❌ LLM EXHAUSTED after {retries} retries ({api_name} | {model})")
     
-    # For Groq, we just fail gracefully now as user wants strict Groq usage
-    if not is_groq and "free" not in model:
-        fallback = os.getenv("FALLBACK_MODEL", "llama-3.1-8b-instant")
+    # For non-Groq exhausted calls, fall back to Groq with the fastest live model
+    if not is_groq:
+        fallback = os.getenv("FALLBACK_MODEL", "openai/gpt-oss-20b")
         print(f"FALLING BACK TO GROQ | Model: {fallback}")
         return call_llm(system_prompt, user_prompt, model=fallback, retries=2)
         
-    raise last_error
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError(f"LLM call failed after {retries} retries with no error captured ({api_name} | {model})")
 
 def extract_text_from_pdf(pdf_file):
     from PyPDF2 import PdfReader
@@ -256,8 +260,9 @@ def generate_syllabus(raw_text, preferred_language="en"):
       "prerequisite_warning": "string | null"
     }}
     """
-    # OPTIMIZED: Using Groq 70B versatile for reliable syllabus/JSON generation
-    model = os.getenv("SYLLABUS_MODEL", "llama-3.3-70b-versatile")
+    # openai/gpt-oss-20b: confirmed LIVE on this Groq account (verified Sep 2026)
+    # Fast, high-quality, free tier. Falls back to gpt-oss-120b on 429.
+    model = os.getenv("SYLLABUS_MODEL", "openai/gpt-oss-20b")
     raw_response = call_llm(system_prompt, user_prompt, model=model)
     cleaned = clean_ai_json(raw_response)
     
@@ -568,9 +573,8 @@ Return this exact JSON structure:
     print(f"   Emotion: {emotion}")
     print(f"   Gender: {gender}")
     
-    # OPTIMIZED: Using Groq (free) for chapter content - excellent for comprehensive lectures
-    # Using reliable model names with env var fallback
-    model = os.getenv("CHAPTER_MODEL", "llama-3.3-70b-versatile")
+    # openai/gpt-oss-20b: confirmed LIVE on this Groq account (verified Sep 2026)
+    model = os.getenv("CHAPTER_MODEL", "openai/gpt-oss-20b")
     
     # ⭐ VALIDATION LOOP: Ensure comprehensive content
     max_retries = 2
