@@ -5,24 +5,36 @@ Also generates simplified content for Simple Mode
 """
 
 import os
+import sys
 import json
 import requests
 import base64
 import re
 from dotenv import load_dotenv
 
+# Fix Windows cp1252 encoding crashes when printing Unicode/emoji
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if sys.stderr.encoding != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 load_dotenv()
 
 
 def call_groq(system_prompt, user_prompt):
-    """Call Groq API for text generation."""
+    """Call Groq API for text generation with retry + OpenRouter fallback."""
+    import time
     groq_key = os.getenv("GROQ_API_KEY")
-    # openai/gpt-oss-20b: confirmed LIVE on Groq (verified Sep 2026). llama-3.1-8b-instant is deprecated.
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
     model = os.getenv("FALLBACK_MODEL", "openai/gpt-oss-20b")
+    
+    # Groq models to rotate through on 429 (all verified LIVE Sep 2026)
+    GROQ_ROTATION = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
     
     url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
     headers = {"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"}
     
+    # Do NOT send response_format — gpt-oss and qwen models don't support it
     payload = {
         "model": model,
         "messages": [
@@ -31,15 +43,60 @@ def call_groq(system_prompt, user_prompt):
         ]
     }
     
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
-        return content
-    except Exception as e:
-        print(f"✗ [STORY-GEN] Groq API Error: {str(e)}")
-        raise e
+    last_error = None
+    for attempt in range(3):
+        try:
+            print(f"📖 [STORY-GEN] Groq | Model: {payload['model']} | Attempt {attempt+1}/3")
+            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            
+            if response.status_code == 429:
+                # Rotate to next Groq model
+                current = payload["model"]
+                idx = GROQ_ROTATION.index(current) if current in GROQ_ROTATION else -1
+                payload["model"] = GROQ_ROTATION[(idx + 1) % len(GROQ_ROTATION)]
+                print(f"🔄 [STORY-GEN] Rate limited, rotating to {payload['model']}")
+                time.sleep((2 ** attempt) + 1)
+                continue
+            
+            response.raise_for_status()
+            data = response.json()
+            content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            return content
+        except Exception as e:
+            last_error = e
+            print(f"⚠️ [STORY-GEN] Groq error (attempt {attempt+1}): {str(e)}")
+            time.sleep(1)
+    
+    # Fallback to OpenRouter free models if Groq exhausted
+    if openrouter_key:
+        print(f"🔄 [STORY-GEN] Groq exhausted, falling back to OpenRouter free model")
+        try:
+            or_url = "https://openrouter.ai/api/v1/chat/completions"
+            or_headers = {
+                "Authorization": f"Bearer {openrouter_key}",
+                "HTTP-Referer": "https://neurolearn.ai",
+                "X-Title": "NeuroLearn AI",
+                "Content-Type": "application/json"
+            }
+            or_payload = {
+                "model": "google/gemma-4-31b-it:free",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "response_format": {"type": "json_object"}
+            }
+            response = requests.post(or_url, headers=or_headers, json=or_payload, timeout=60)
+            response.raise_for_status()
+            data = response.json()
+            content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            print(f"✓ [STORY-GEN] OpenRouter fallback succeeded")
+            return content
+        except Exception as e:
+            print(f"✗ [STORY-GEN] OpenRouter fallback also failed: {str(e)}")
+    
+    print(f"✗ [STORY-GEN] All APIs exhausted")
+    raise last_error or RuntimeError("Story generation failed on all providers")
 
 
 def clean_json(raw_text):

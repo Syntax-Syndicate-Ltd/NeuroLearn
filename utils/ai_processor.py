@@ -200,10 +200,15 @@ def call_llm(system_prompt, user_prompt, model=None, retries=5):
             
     print(f"❌ LLM EXHAUSTED after {retries} retries ({api_name} | {model})")
     
-    # For non-Groq exhausted calls, fall back to Groq with the fastest live model
-    if not is_groq:
+    # Cross-provider fallback: if one provider is exhausted, try the other
+    if is_groq and openrouter_key:
+        # Groq exhausted → fall back to OpenRouter free model
+        print(f"🔄 GROQ EXHAUSTED → Falling back to OpenRouter free model")
+        return call_llm(system_prompt, user_prompt, model="google/gemma-4-31b-it:free", retries=2)
+    elif not is_groq:
+        # OpenRouter exhausted → fall back to Groq
         fallback = os.getenv("FALLBACK_MODEL", "openai/gpt-oss-20b")
-        print(f"FALLING BACK TO GROQ | Model: {fallback}")
+        print(f"🔄 OPENROUTER EXHAUSTED → Falling back to Groq | Model: {fallback}")
         return call_llm(system_prompt, user_prompt, model=fallback, retries=2)
         
     if last_error is not None:
